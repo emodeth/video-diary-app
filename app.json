@@ -28,6 +28,13 @@
       "expo-status-bar",
       "expo-image-picker",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4164537e-081b-41df-8451-107a5c76418b"
+      }
+    },
+    "owner": "emodeth"
   }
 }
