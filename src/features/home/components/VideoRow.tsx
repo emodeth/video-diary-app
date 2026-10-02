@@ -1,4 +1,5 @@
-import { Image, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Image, Pressable, Text, View } from "react-native";
 import { PlayMark } from "./PlayMark";
 import type { Video } from "../../../types/videos";
 
@@ -8,7 +9,12 @@ type VideoRowProps = {
 
 export function VideoRow({ video }: VideoRowProps) {
   return (
-    <View className="min-h-[135px] flex-row items-center py-[18px]">
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Open ${video.title}`}
+      onPress={() => router.push({ pathname: "/video/[id]", params: { id: video.id } })}
+      className="min-h-[135px] flex-row items-center py-[18px] active:opacity-70"
+    >
       <View className="h-[76px] w-[96px] overflow-hidden rounded-[12px]">
         <Image
           source={video.thumbnailUrl ? { uri: video.thumbnailUrl } : video.thumbnailPlaceholder}
@@ -25,6 +31,6 @@ export function VideoRow({ video }: VideoRowProps) {
         <Text className="mt-[4px] font-sans text-[14px] leading-[21px] text-muted" numberOfLines={2}>{video.description}</Text>
         <Text className="mt-[6px] font-medium text-[12.5px] leading-[17px] text-muted tabular-nums">{video.date}</Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
