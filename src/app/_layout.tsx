@@ -29,7 +29,7 @@ export default function RootLayout() {
           <Stack.Screen name="video/[id]" options={{ headerShown: false }} />
           <Stack.Screen
             name="crop"
-            options={{ presentation: "modal", headerShown: false }}
+            options={{ presentation: "transparentModal", animation: "none", headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
           />
         </Stack>
       </QueryClientProvider>
