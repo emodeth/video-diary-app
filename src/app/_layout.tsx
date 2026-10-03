@@ -25,7 +25,7 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <QueryClientProvider client={queryClient}>
         <Stack>
-          <Stack.Screen name="index" options={{ title: "Video Diary" }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen
             name="crop"
             options={{ presentation: "modal", headerShown: false }}
