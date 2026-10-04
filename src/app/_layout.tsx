@@ -9,6 +9,7 @@ import { Figtree_600SemiBold } from "@expo-google-fonts/figtree/600SemiBold";
 import { Figtree_700Bold } from "@expo-google-fonts/figtree/700Bold";
 import { StatusBar } from "expo-status-bar";
 import { queryClient } from "@/lib/queryClient";
+import { DATABASE_NAME, initializeDatabase, SQLiteProvider } from "@/db";
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -24,14 +25,16 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="dark" />
       <QueryClientProvider client={queryClient}>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="video/[id]" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="crop"
-            options={{ presentation: "transparentModal", animation: "none", headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
-          />
-        </Stack>
+        <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="videos/[id]" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="crop"
+              options={{ presentation: "transparentModal", animation: "none", headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
+            />
+          </Stack>
+        </SQLiteProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

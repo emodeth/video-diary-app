@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Text, View } from "react-native";
-import type { ClipSource } from "@/types/crop";
+import type { VideoSource } from "@/types/crop";
 import { formatTime } from "../utils/formatTime";
 import { getStartFromPosition } from "../utils/getStartFromPosition";
 
-type Props = { selected: ClipSource; start: number; onStartChange: (start: number) => void };
+type Props = { selected: VideoSource; start: number; onStartChange: (start: number) => void };
 
-export function ClipRangeStep({ selected, start, onStartChange }: Props) {
+export function VideoRangeStep({ selected, start, onStartChange }: Props) {
   const [timelineWidth, setTimelineWidth] = useState(0);
-  const maxStart = Math.max(0, selected.duration - 5);
+  const maxStart = Math.max(0, Math.floor(selected.duration - 5));
   const frameWidth = Math.max(19, timelineWidth * 5 / selected.duration);
   const range = `${formatTime(start)} – ${formatTime(start + 5)}`;
   const updateStart = (locationX: number) =>
@@ -17,7 +17,7 @@ export function ClipRangeStep({ selected, start, onStartChange }: Props) {
   return (
     <>
       <Text className="font-bold text-[26px] leading-[32px] tracking-[-0.7px] text-ink">Choose 5 seconds</Text>
-      <Text className="mt-[5px] font-sans text-[16px] leading-[25px] text-muted">Drag the frame along the timeline to set where your clip starts.</Text>
+      <Text className="mt-[5px] font-sans text-[16px] leading-[25px] text-muted">Drag the frame along the timeline to choose where your saved video starts.</Text>
       <View style={{ backgroundColor: selected.color }} className="mt-[23px] h-[215px] justify-between overflow-hidden rounded-[18px] p-[13px]">
         <View className="self-start rounded-full bg-white/90 px-[11px] py-[5px]"><Text className="font-semibold text-[13px] text-ink tabular-nums">{range}</Text></View>
         <View className="absolute inset-0 items-center justify-center" pointerEvents="none">
@@ -35,7 +35,7 @@ export function ClipRangeStep({ selected, start, onStartChange }: Props) {
       </View>
       <View
         accessibilityRole="adjustable"
-        accessibilityLabel="Clip start time"
+        accessibilityLabel="Video start time"
         accessibilityValue={{ text: formatTime(start), min: 0, max: maxStart, now: start }}
         accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
         onAccessibilityAction={(event) =>

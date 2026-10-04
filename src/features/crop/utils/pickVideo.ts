@@ -1,18 +1,19 @@
 import * as ImagePicker from "expo-image-picker";
-import type { ClipSource } from "@/types/crop";
+import type { VideoSource } from "@/types/crop";
 
-export async function pickVideo(): Promise<ClipSource | null> {
+export async function pickVideo(): Promise<VideoSource | null> {
   const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (!permission.granted) throw new Error("permission");
 
   const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["videos"] });
   if (result.canceled || !result.assets[0]) return null;
   const asset = result.assets[0];
-  if ((asset.duration ?? 0) < 5) throw new Error("tooShort");
+  const duration = (asset.duration ?? 0) / 1000;
+  if (duration < 5) throw new Error("tooShort");
 
   return {
     id: asset.uri,
-    duration: asset.duration ?? 5,
+    duration,
     color: "#D5D1E9",
     title: asset.fileName || "Selected video",
   };

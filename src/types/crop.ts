@@ -1,4 +1,4 @@
-export type ClipSource = {
+export type VideoSource = {
   id: string;
   duration: number;
   color: string;
