@@ -4,13 +4,13 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View, use
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import type { ClipSource, CropStep } from "@/types/crop";
-import { ClipDetailsStep } from "./components/ClipDetailsStep";
-import { ClipRangeStep } from "./components/ClipRangeStep";
+import { useCreateVideo } from "@/features/videos/hooks";
+import type { VideoSource, CropStep } from "@/types/crop";
+import { VideoDetailsStep } from "./components/VideoDetailsStep";
+import { VideoRangeStep } from "./components/VideoRangeStep";
 import { CropFooter } from "./components/CropFooter";
 import { CropHeader } from "./components/CropHeader";
 import { VideoSelectionStep } from "./components/VideoSelectionStep";
-import { formatTime } from "./utils/formatTime";
 import { pickVideo } from "./utils/pickVideo";
 
 function dismissCrop() {
@@ -20,8 +20,9 @@ function dismissCrop() {
 export default function CropScreen() {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const { mutateAsync: createVideo, isPending: saving } = useCreateVideo();
   const [step, setStep] = useState<CropStep>(1);
-  const [selected, setSelected] = useState<ClipSource | null>(null);
+  const [selected, setSelected] = useState<VideoSource | null>(null);
   const [start, setStart] = useState(0);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -36,7 +37,7 @@ export default function CropScreen() {
   }));
   const backdropAnimation = useAnimatedStyle(() => ({ opacity: progress.value * 0.35 }));
 
-  function close() {
+  function dismiss() {
     // Reanimated shared values are intentionally mutable outside React render.
     // eslint-disable-next-line react-hooks/immutability
     progress.value = withTiming(0, { duration: 220, easing: Easing.in(Easing.cubic) }, (finished) => {
@@ -44,7 +45,12 @@ export default function CropScreen() {
     });
   }
 
+  function close() {
+    if (!saving) dismiss();
+  }
+
   function back() {
+    if (saving) return;
     if (step === 1) close();
     else setStep((step - 1) as CropStep);
   }
@@ -53,7 +59,7 @@ export default function CropScreen() {
     if (step < 3) setStep((step + 1) as CropStep);
   }
 
-  function chooseSource(source: ClipSource) {
+  function chooseSource(source: VideoSource) {
     setSelected(source);
     setStart(0);
   }
@@ -74,10 +80,19 @@ export default function CropScreen() {
     }
   }
 
-  function finish() {
-    Alert.alert("Mock clip ready", `“${name.trim()}” · ${formatTime(start)} – ${formatTime(start + 5)}`, [
-      { text: "Done", onPress: close },
-    ]);
+  async function finish() {
+    if (saving || !selected || !name.trim()) return;
+    try {
+      await createVideo({
+        sourceUri: selected.id,
+        startSeconds: start,
+        title: name,
+        description,
+      });
+      dismiss();
+    } catch {
+      Alert.alert("Couldn’t save video", "Please try cropping this video again.");
+    }
   }
 
   return (
@@ -98,15 +113,15 @@ export default function CropScreen() {
               contentContainerStyle={{ paddingHorizontal: 27, paddingTop: 9, paddingBottom: 28 }}
               keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View>
-                {step === 1 && <VideoSelectionStep selected={selected} onSelect={chooseSource} onBrowse={browse} />}
-                {step === 2 && selected && <ClipRangeStep selected={selected} start={start} onStartChange={setStart} />}
-                {step === 3 && selected && <ClipDetailsStep selected={selected} start={start}
+                {step === 1 && <VideoSelectionStep selected={selected} onBrowse={browse} />}
+                {step === 2 && selected && <VideoRangeStep selected={selected} start={start} onStartChange={setStart} />}
+                {step === 3 && selected && <VideoDetailsStep selected={selected} start={start}
                   name={name} description={description} onNameChange={setName}
                   onDescriptionChange={setDescription} />}
               </View>
             </ScrollView>
             <CropFooter step={step} bottomInset={insets.bottom} hasSelection={!!selected}
-              hasName={!!name.trim()} onNext={next} onBack={back} onFinish={finish} />
+              hasName={!!name.trim()} saving={saving} onNext={next} onBack={back} onFinish={finish} />
           </View>
         </KeyboardAvoidingView>
       </Animated.View>

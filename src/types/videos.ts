@@ -1,9 +1,9 @@
 export type Video = {
-  id: string;
+  id: number;
   title: string;
-  date: string;
-  duration: string;
   description: string;
-  thumbnailUrl?: string;
-  thumbnailPlaceholder: number;
+  file_name: string;
+  duration_seconds: number;
+  start_seconds: number;
+  created_at: string;
 };
