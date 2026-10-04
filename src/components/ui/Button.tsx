@@ -6,9 +6,10 @@ type ButtonVariant = "normal" | "ghost" | "outline" | "delete";
 type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   label: string;
   variant?: ButtonVariant;
-  size?: "default" | "large";
+  size?: "compact" | "default" | "large";
   icon?: ReactNode;
   fullWidth?: boolean;
+  centered?: boolean;
   className?: string;
 };
 
@@ -32,6 +33,7 @@ export function Button({
   size = "default",
   icon,
   fullWidth = false,
+  centered = false,
   disabled = false,
   className = "",
   ...props
@@ -42,17 +44,17 @@ export function Button({
       accessibilityRole="button"
       accessibilityState={{ disabled: !!disabled }}
       disabled={!!disabled}
-      className={`${fullWidth ? "self-stretch" : "self-start"} ${className}`}
+      className={`${fullWidth ? "self-stretch" : centered ? "self-center" : "self-start"} ${className}`}
       style={({ pressed }) => ({
         transform: [{ scale: pressed && !disabled ? 0.96 : 1 }],
-        opacity: disabled ? 0.5 : 1,
+        opacity: disabled && variant !== "normal" ? 0.5 : 1,
       })}
     >
       <View
-        className={`${size === "large" ? "h-[58px]" : "h-[52px]"} flex-row items-center justify-center gap-3 rounded-[16px] px-6 ${containerVariants[variant]}`}
+        className={`${size === "large" ? "h-[58px]" : size === "compact" ? "h-[45px]" : "h-[52px]"} flex-row items-center justify-center gap-3 rounded-[16px] px-6 ${disabled && variant === "normal" ? "bg-[#E8EAEE]" : containerVariants[variant]}`}
       >
         {icon}
-        <Text className={`font-bold text-[16px] ${textVariants[variant]}`}>{label}</Text>
+        <Text className={`font-bold text-[16px] ${disabled && variant === "normal" ? "text-[#9AA5BE]" : textVariants[variant]}`}>{label}</Text>
       </View>
     </Pressable>
   );

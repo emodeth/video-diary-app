@@ -16,5 +16,6 @@ export async function pickVideo(): Promise<VideoSource | null> {
     duration,
     color: "#D5D1E9",
     title: asset.fileName || "Selected video",
+    fileSize: asset.fileSize,
   };
 }
