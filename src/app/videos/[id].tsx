@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { Pressable, Text, View } from "react-native";
+import { Button } from "@/components/ui/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useVideo } from "@/features/videos/hooks";
@@ -41,7 +42,7 @@ export default function VideoScreen() {
         ) : isPending && Number.isInteger(videoId) && videoId > 0 ? (
           <Text className="font-semibold text-[16px] text-ink">Loading video…</Text>
         ) : isError ? (
-          <Pressable onPress={() => refetch()}><Text className="font-semibold text-[16px] text-brand">Couldn’t load video. Tap to retry.</Text></Pressable>
+          <Button label="Couldn’t load video. Tap to retry." variant="ghost" onPress={() => refetch()} />
         ) : (
           <Text className="font-semibold text-[16px] text-ink">Video not found</Text>
         )}
