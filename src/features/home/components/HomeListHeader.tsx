@@ -9,8 +9,10 @@ export function HomeListHeader({ totalVideos, totalSeconds }: HomeListHeaderProp
   return (
     <View className="pb-3 pt-8">
       <Text className="font-bold text-[30px] leading-[36px] tracking-[-0.8px] text-ink">Video Diary</Text>
-      <Text className="mt-1 font-sans text-[14px] leading-[21px] text-muted">
-        {totalVideos} saved {totalVideos === 1 ? "video" : "videos"}, {totalSeconds} seconds in all
+      <Text className="mt-1 font-sans text-[15px] leading-[22px] text-muted">
+        {totalVideos === 0
+          ? "Your cropped clips will live here"
+          : `${totalVideos} saved ${totalVideos === 1 ? "video" : "videos"}, ${totalSeconds} seconds in all`}
       </Text>
     </View>
   );
