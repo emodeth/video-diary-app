@@ -1,4 +1,6 @@
+import { router } from "expo-router";
 import { Text, View } from "react-native";
+import { Button } from "@/components/ui/Button";
 
 export function EmptyVideos() {
   return (
@@ -12,6 +14,7 @@ export function EmptyVideos() {
       <Text className="mt-2 text-center font-sans text-[14px] leading-[22px] text-muted">
         Pick a video, trim a 5-second moment, and it will show up here.
       </Text>
+      <Button label="Crop your first video" onPress={() => router.push("/crop")} className="mt-6" />
     </View>
   );
 }

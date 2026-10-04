@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useVideos } from "@/features/videos/hooks";
+import { Button } from "@/components/ui/Button";
 import { EmptyVideos } from "./components/EmptyVideos";
 import { HomeListHeader } from "./components/HomeListHeader";
 import { VideoRow } from "./components/VideoRow";
@@ -21,17 +22,17 @@ export default function Home() {
         contentContainerClassName="flex-grow px-6 pb-24"
         ListHeaderComponent={<HomeListHeader totalVideos={videos.length} totalSeconds={totalSeconds} />}
         ListEmptyComponent={isPending ? <Text className="mt-12 text-center text-muted">Loading videos…</Text>
-          : isError ? <Pressable onPress={() => refetch()} className="mt-12 items-center"><Text className="text-brand">Couldn’t load videos. Tap to retry.</Text></Pressable>
+          : isError ? <Button label="Couldn’t load videos. Tap to retry." variant="ghost" onPress={() => refetch()} className="mt-12 self-center" />
           : <EmptyVideos />}
       />
-      <Pressable
+      {videos.length > 0 && <Pressable
         accessibilityRole="button"
         accessibilityLabel="Add a video"
         onPress={() => router.push("/crop")}
         className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-brand shadow-lg shadow-brand/25 active:opacity-80"
       >
         <Text className="-mt-[2px] font-sans text-[32px] leading-[38px] text-white">+</Text>
-      </Pressable>
+      </Pressable>}
     </SafeAreaView>
   );
 }
