@@ -31,21 +31,21 @@ export default function VideoScreen() {
           <>
             {file?.exists ? <VideoPlayer uri={file.uri} /> :
               <View className="h-[220px] items-center justify-center rounded-[16px] bg-brand-soft px-6">
-                <Text className="text-center font-semibold text-[16px] text-ink">Video file unavailable</Text>
-                <Text className="mt-2 text-center font-sans text-[14px] text-muted">This video’s saved file could not be found.</Text>
+                <Text className="text-center font-sans-semibold text-heading text-ink">Video file unavailable</Text>
+                <Text className="mt-2 text-center font-sans text-hint text-muted">This video’s saved file could not be found.</Text>
               </View>}
-            <Text className="mt-7 font-bold text-[26px] tracking-[-0.5px] text-ink">{video.title}</Text>
-            <Text className="mt-2 font-medium text-[12.5px] text-muted tabular-nums">
+            <Text className="mt-7 font-sans-bold text-title-lg tracking-[-0.5px] text-ink">{video.title}</Text>
+            <Text className="mt-2 font-sans-medium text-meta text-muted tabular-nums">
               {new Date(video.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })} · {formatTime(video.duration_seconds)}
             </Text>
-            {!!video.description && <Text className="mt-6 font-sans text-[16px] leading-[26px] text-ink">{video.description}</Text>}
+            {!!video.description && <Text className="mt-6 font-sans text-body text-ink">{video.description}</Text>}
           </>
         ) : isPending && Number.isInteger(videoId) && videoId > 0 ? (
-          <Text className="font-semibold text-[16px] text-ink">Loading video…</Text>
+          <Text className="font-sans-semibold text-body text-ink">Loading video…</Text>
         ) : isError ? (
           <Button label="Couldn’t load video. Tap to retry." variant="ghost" onPress={() => refetch()} />
         ) : (
-          <Text className="font-semibold text-[16px] text-ink">Video not found</Text>
+          <Text className="font-sans-semibold text-body text-ink">Video not found</Text>
         )}
       </View>
     </SafeAreaView>

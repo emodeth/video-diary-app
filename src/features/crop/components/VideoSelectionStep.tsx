@@ -15,8 +15,8 @@ export function VideoSelectionStep({ poster, onBrowse }: Props) {
   const selected = useCropStore((state) => state.selected);
   return (
     <>
-      <Text className="font-bold text-[26px] leading-[32px] tracking-[-0.7px] text-ink">Select a video</Text>
-      <Text className="mt-[5px] font-sans text-[16px] leading-[25px] text-muted">
+      <Text className="font-sans-bold text-title tracking-[-0.7px] text-ink">Select a video</Text>
+      <Text className="mt-[5px] font-sans text-lead text-muted">
         Choose a clip from your device. You’ll pick a 5-second moment next.
       </Text>
 
@@ -28,21 +28,21 @@ export function VideoSelectionStep({ poster, onBrowse }: Props) {
               <Play size={28} color="#2563EB" strokeWidth={2.25} style={{ marginLeft: 2 }} />
             </View>
             <View className="absolute bottom-[11px] right-[11px] rounded-full bg-white px-[10px] py-[4px]">
-              <Text className="font-semibold text-[12px] leading-[15px] text-ink tabular-nums">
+              <Text className="font-sans-semibold text-chip text-ink tabular-nums">
                 {formatTime(selected.duration)}
               </Text>
             </View>
           </View>
           <View className="mt-[14px] flex-row items-center justify-between gap-3">
-            <Text className="flex-1 font-semibold text-[16px] leading-[21px] text-ink" numberOfLines={1}>
+            <Text className="flex-1 font-sans-semibold text-row text-ink" numberOfLines={1}>
               {selected.title}
             </Text>
             <Pressable accessibilityRole="button" accessibilityLabel="Change video" onPress={onBrowse}
               className="min-h-10 justify-center px-1">
-              <Text className="font-semibold text-[16px] text-brand">Change</Text>
+              <Text className="font-sans-semibold text-secondary text-brand">Change</Text>
             </Pressable>
           </View>
-          <Text className="-mt-[4px] font-sans text-[14px] leading-[20px] text-muted tabular-nums">
+          <Text className="-mt-[4px] font-sans text-meta text-muted tabular-nums">
             {formatTime(selected.duration)}{selected.fileSize != null ? ` · ${(selected.fileSize / (1024 * 1024)).toFixed(1)} MB` : ""}
           </Text>
         </>
@@ -51,8 +51,8 @@ export function VideoSelectionStep({ poster, onBrowse }: Props) {
           <View className="h-[59px] w-[59px] items-center justify-center rounded-[17px] bg-[#EDF2FF]">
             <Film size={24} color="#2563EB" strokeWidth={2} />
           </View>
-          <Text className="mt-[13px] font-semibold text-[18px] leading-[23px] text-ink">Choose from device</Text>
-          <Text className="mt-[3px] max-w-[210px] text-center font-sans text-[14px] leading-[19px] text-muted">
+          <Text className="mt-[13px] font-sans-semibold text-heading text-ink">Choose from device</Text>
+          <Text className="mt-[3px] max-w-[230px] text-center font-sans text-hint text-muted">
             Pick a video from your photo library
           </Text>
           <View className="mt-[16px] w-full flex-row justify-center">

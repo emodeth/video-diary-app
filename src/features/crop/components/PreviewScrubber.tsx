@@ -27,7 +27,7 @@ export function PreviewScrubber({ currentTime, start, clipLength, progress, onSc
 
   return (
     <View className="mx-3 mb-3 mt-1 flex-row items-center gap-[8px] rounded-full bg-[#223149] px-3 py-2">
-      <Text className="min-w-[35px] font-medium text-[11px] text-white tabular-nums">{formatTime(Math.max(0, currentTime - start))}</Text>
+      <Text className="min-w-[39px] font-sans-medium text-chip text-white tabular-nums">{formatTime(Math.max(0, currentTime - start))}</Text>
       <GestureDetector gesture={Gesture.Exclusive(pan, tap)}>
         <View accessibilityRole="adjustable" accessibilityLabel="Position within selected five seconds"
           accessibilityValue={{ min: 0, max: clipLength, now: Math.round((currentTime - start) * 10) / 10 }}
@@ -45,7 +45,7 @@ export function PreviewScrubber({ currentTime, start, clipLength, progress, onSc
             style={{ left: Math.max(0, progress * (width - 12)) }} />
         </View>
       </GestureDetector>
-      <Text className="font-medium text-[11px] text-white tabular-nums">{formatTime(clipLength)}</Text>
+      <Text className="font-sans-medium text-chip text-white tabular-nums">{formatTime(clipLength)}</Text>
     </View>
   );
 }

@@ -50,10 +50,10 @@ export function VideoRangeStep({
 
   return (
     <>
-      <Text className="font-bold text-[26px] leading-[32px] tracking-[-0.7px] text-ink">
+      <Text className="font-sans-bold text-title tracking-[-0.7px] text-ink">
         Choose 5 seconds
       </Text>
-      <Text className="mt-[5px] font-sans text-[16px] leading-[25px] text-muted">
+      <Text className="mt-[5px] font-sans text-lead text-muted">
         Drag the frame along the timeline to choose where your clip starts.
       </Text>
       <VideoPreview
@@ -91,7 +91,7 @@ export function VideoRangeStep({
           className="h-[52px] flex-1 items-center justify-center rounded-[13px] border border-[#E5E9F0] active:bg-[#F4F6FA]"
           style={{ opacity: start <= 0 ? 0.45 : 1 }}
         >
-          <Text className="font-semibold text-[16px] text-ink">− 1 sec</Text>
+          <Text className="font-sans-semibold text-button text-ink">− 1 sec</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -101,14 +101,14 @@ export function VideoRangeStep({
           className="h-[52px] flex-1 items-center justify-center rounded-[13px] border border-[#E5E9F0] active:bg-[#F4F6FA]"
           style={{ opacity: start >= maxStart ? 0.45 : 1 }}
         >
-          <Text className="font-semibold text-[16px] text-ink">+ 1 sec</Text>
+          <Text className="font-sans-semibold text-button text-ink">+ 1 sec</Text>
         </Pressable>
       </View>
-      <Text className="mt-3 font-sans text-[14px] leading-[20px] text-muted">
+      <Text className="mt-3 font-sans text-hint text-muted">
         Drag the frame, tap the timeline, or nudge by a second.
       </Text>
       {framesFailed && (
-        <Text className="mt-2 font-sans text-[13px] text-muted">
+        <Text className="mt-2 font-sans text-hint text-muted">
           Frames unavailable. Drag the blue frame to choose a start time.
         </Text>
       )}

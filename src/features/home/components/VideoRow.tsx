@@ -23,13 +23,13 @@ export function VideoRow({ video }: VideoRowProps) {
           </View>
         </View>
         <View className="absolute bottom-[6px] right-[6px] rounded-full bg-white/90 px-[7px] py-[2px]">
-          <Text className="font-semibold text-[11.5px] leading-[14px] text-ink tabular-nums">{formatTime(video.duration_seconds)}</Text>
+          <Text className="font-sans-semibold text-chip text-ink tabular-nums">{formatTime(video.duration_seconds)}</Text>
         </View>
       </View>
       <View className="min-w-0 flex-1 pl-[18px]">
-        <Text className="font-semibold text-[16px] leading-[21px] text-ink" numberOfLines={1}>{video.title}</Text>
-        <Text className="mt-[4px] font-sans text-[14px] leading-[21px] text-muted" numberOfLines={2}>{video.description}</Text>
-        <Text className="mt-[6px] font-medium text-[12.5px] leading-[17px] text-muted tabular-nums">{new Date(video.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</Text>
+        <Text className="font-sans-semibold text-row text-ink" numberOfLines={1}>{video.title}</Text>
+        <Text className="mt-[4px] font-sans text-secondary text-muted" numberOfLines={2}>{video.description}</Text>
+        <Text className="mt-[6px] font-sans-medium text-meta text-muted tabular-nums">{new Date(video.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</Text>
       </View>
     </Pressable>
   );
