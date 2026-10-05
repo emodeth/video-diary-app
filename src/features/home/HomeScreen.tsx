@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
       {showEmptyState ? (
-        <View className="flex-1 px-6">
+        <View className="flex-1 px-7">
           <HomeListHeader totalVideos={0} totalSeconds={0} />
           <EmptyVideos />
         </View>
@@ -28,7 +28,7 @@ export default function Home() {
             renderItem={({ item }) => <VideoRow video={item} />}
             ItemSeparatorComponent={() => <View className="h-px bg-line" />}
             showsVerticalScrollIndicator={false}
-            contentContainerClassName="flex-grow px-6 pb-24"
+            contentContainerClassName="flex-grow px-7 pb-24"
             ListHeaderComponent={<HomeListHeader totalVideos={videos.length} totalSeconds={totalSeconds} />}
             ListEmptyComponent={isPending ? <Text className="mt-12 text-center font-sans text-body text-muted">Loading videos…</Text>
               : isError ? <Button label="Couldn’t load videos. Tap to retry." variant="ghost" onPress={() => refetch()} className="mt-12 self-center" />
@@ -38,7 +38,7 @@ export default function Home() {
             accessibilityRole="button"
             accessibilityLabel="Add a video"
             onPress={() => router.push("/crop")}
-            className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-brand shadow-lg shadow-brand/25 active:opacity-80"
+            className="absolute bottom-7 right-7 h-16 w-16 items-center justify-center rounded-full bg-brand shadow-lg shadow-brand/25 active:opacity-80"
           >
             <Plus size={30} color="#FFFFFF" strokeWidth={2} />
           </Pressable>}
