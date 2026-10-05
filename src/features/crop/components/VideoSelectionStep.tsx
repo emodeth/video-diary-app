@@ -1,11 +1,10 @@
 import { Text, View } from "react-native";
-import type { VideoThumbnail } from "expo-video";
 import { useCropStore } from "../store";
 import { EmptyVideoSelection } from "./EmptyVideoSelection";
 import { SelectedVideoSelection } from "./SelectedVideoSelection";
 
 type Props = {
-  poster: VideoThumbnail | null;
+  poster: string | null;
   onBrowse: () => void;
 };
 

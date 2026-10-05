@@ -5,6 +5,7 @@ export type SaveVideoRow = {
   title: string;
   description: string;
   fileName: string;
+  thumbnailFileName: string;
   durationSeconds: number;
   startSeconds: number;
   createdAt: string;
@@ -20,7 +21,7 @@ export function getVideo(db: SQLiteDatabase, id: number) {
 
 export async function saveVideo(db: SQLiteDatabase, video: SaveVideoRow) {
   return db.runAsync(
-    "INSERT INTO videos (title, description, file_name, duration_seconds, start_seconds, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-    video.title, video.description, video.fileName, video.durationSeconds, video.startSeconds, video.createdAt,
+    "INSERT INTO videos (title, description, file_name, thumbnail_file_name, duration_seconds, start_seconds, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    video.title, video.description, video.fileName, video.thumbnailFileName, video.durationSeconds, video.startSeconds, video.createdAt,
   );
 }
