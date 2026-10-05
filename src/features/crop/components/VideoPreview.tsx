@@ -31,13 +31,13 @@ export function VideoPreview({ player, status, width, mediaHeight, currentTime, 
             accessibilityLabel={isPlaying ? "Pause preview" : "Play selected five seconds"}
             className="absolute inset-0" />
           <View pointerEvents="none" className="absolute left-3 top-3 rounded-full bg-white/90 px-[11px] py-[5px]">
-            <Text className="font-semibold text-[13px] text-ink">Preview</Text>
+            <Text className="font-sans-semibold text-chip text-ink">Preview</Text>
           </View>
           <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
             {status === "error" ? (
-              <View className="rounded-xl bg-white/90 px-4 py-3"><Text className="font-semibold text-[14px] text-ink">Couldn’t preview this video</Text></View>
+              <View className="rounded-xl bg-white/90 px-4 py-3"><Text className="font-sans-semibold text-hint text-ink">Couldn’t preview this video</Text></View>
             ) : !hasRenderedFrame ? (
-              <View className="rounded-xl bg-white/90 px-4 py-3"><Text className="font-semibold text-[14px] text-ink">Loading preview…</Text></View>
+              <View className="rounded-xl bg-white/90 px-4 py-3"><Text className="font-sans-semibold text-hint text-ink">Loading preview…</Text></View>
             ) : !isPlaying ? (
               <View className="h-[58px] w-[58px] items-center justify-center rounded-full bg-white/85">
                 <Play size={28} color="#2563EB" fill="#2563EB" strokeWidth={1.5} style={{ marginLeft: 4 }} />

@@ -52,7 +52,7 @@ export function Button({
         className={`${size === "large" ? "h-[58px]" : size === "compact" ? "h-[45px]" : "h-[52px]"} flex-row items-center justify-center gap-3 rounded-[16px] px-6 ${disabled && variant === "normal" ? "bg-[#E8EAEE]" : containerVariants[variant]}`}
       >
         {icon}
-        <Text className={`font-bold text-[16px] ${disabled && variant === "normal" ? "text-[#9AA5BE]" : textVariants[variant]}`}>{label}</Text>
+        <Text className={`font-sans-bold text-button ${disabled && variant === "normal" ? "text-[#9AA5BE]" : textVariants[variant]}`}>{label}</Text>
       </View>
     </Pressable>
   );

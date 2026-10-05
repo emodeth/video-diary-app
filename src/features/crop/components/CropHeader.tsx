@@ -15,8 +15,8 @@ export function CropHeader({ onBack, onClose }: Props) {
           {step > 1 && <ChevronLeft size={28} color="#101828" strokeWidth={2} />}
         </Pressable>
         <View className="items-center">
-          <Text className="font-bold text-[18px] leading-[23px] text-ink">New crop</Text>
-          <Text className="mt-[2px] font-medium text-[13px] text-muted">Step {step} of 3</Text>
+          <Text className="font-sans-bold text-nav text-ink">New crop</Text>
+          <Text className="mt-[2px] font-sans-medium text-meta text-muted">Step {step} of 3</Text>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} className="h-11 w-11 items-center justify-center">
           <X size={25} color="#101828" strokeWidth={2} />

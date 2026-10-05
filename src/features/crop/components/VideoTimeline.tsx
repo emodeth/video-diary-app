@@ -85,11 +85,11 @@ export function VideoTimeline({
 
   return (
     <>
-      <View className="mt-6 flex-row items-end justify-between gap-3">
-        <Text className="font-bold text-[26px] leading-[32px] tracking-[-0.7px] text-ink tabular-nums">
+      <View className="mt-6 flex-row flex-wrap items-end justify-between gap-x-3 gap-y-1">
+        <Text className="font-sans-bold text-title tracking-[-0.7px] text-ink tabular-nums">
           {`${formatTime(start)} – ${formatTime(start + clipLength)}`}
         </Text>
-        <Text className="mb-1 font-medium text-[13px] text-muted">
+        <Text className="font-sans-medium text-chip text-muted">
           {clipLength} sec · fixed length
         </Text>
       </View>
@@ -154,13 +154,13 @@ export function VideoTimeline({
         </View>
       </GestureDetector>
       <View className="mt-2 flex-row justify-between">
-        <Text className="font-sans text-[13px] text-muted tabular-nums">
+        <Text className="font-sans text-chip text-muted tabular-nums">
           0:00
         </Text>
-        <Text className="font-sans text-[13px] text-muted tabular-nums">
+        <Text className="font-sans text-chip text-muted tabular-nums">
           {formatTime(Math.round(duration / 2))}
         </Text>
-        <Text className="font-sans text-[13px] text-muted tabular-nums">
+        <Text className="font-sans text-chip text-muted tabular-nums">
           {formatTime(duration)}
         </Text>
       </View>

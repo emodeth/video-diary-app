@@ -30,7 +30,7 @@ export default function Home() {
             showsVerticalScrollIndicator={false}
             contentContainerClassName="flex-grow px-6 pb-24"
             ListHeaderComponent={<HomeListHeader totalVideos={videos.length} totalSeconds={totalSeconds} />}
-            ListEmptyComponent={isPending ? <Text className="mt-12 text-center text-muted">Loading videos…</Text>
+            ListEmptyComponent={isPending ? <Text className="mt-12 text-center font-sans text-body text-muted">Loading videos…</Text>
               : isError ? <Button label="Couldn’t load videos. Tap to retry." variant="ghost" onPress={() => refetch()} className="mt-12 self-center" />
               : null}
           />
