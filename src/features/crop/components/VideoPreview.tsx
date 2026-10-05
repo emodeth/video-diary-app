@@ -1,4 +1,5 @@
 import { Pressable, Text, View } from "react-native";
+import { Play } from "lucide-react-native";
 import { VideoView, type VideoPlayer, type VideoPlayerStatus } from "expo-video";
 import { PreviewScrubber } from "./PreviewScrubber";
 
@@ -39,7 +40,7 @@ export function VideoPreview({ player, status, width, mediaHeight, currentTime, 
               <View className="rounded-xl bg-white/90 px-4 py-3"><Text className="font-semibold text-[14px] text-ink">Loading preview…</Text></View>
             ) : !isPlaying ? (
               <View className="h-[58px] w-[58px] items-center justify-center rounded-full bg-white/85">
-                <Text className="ml-1 font-bold text-[25px] text-brand">▶</Text>
+                <Play size={28} color="#2563EB" fill="#2563EB" strokeWidth={1.5} style={{ marginLeft: 4 }} />
               </View>
             ) : null}
           </View>

@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
+import { ChevronLeft } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 import { Button } from "@/components/ui/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,7 +25,7 @@ export default function VideoScreen() {
     <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
       <View className="flex-1 px-6 pt-4">
         <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" className="mb-8 h-11 w-11 justify-center active:opacity-60">
-          <Text className="font-sans text-[28px] text-ink">‹</Text>
+          <ChevronLeft size={28} color="#101828" strokeWidth={2} />
         </Pressable>
         {video ? (
           <>

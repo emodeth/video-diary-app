@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { Plus } from "lucide-react-native";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useVideos } from "@/features/videos/hooks";
@@ -39,7 +40,7 @@ export default function Home() {
             onPress={() => router.push("/crop")}
             className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-brand shadow-lg shadow-brand/25 active:opacity-80"
           >
-            <Text className="-mt-[2px] font-sans text-[32px] leading-[38px] text-white">+</Text>
+            <Plus size={30} color="#FFFFFF" strokeWidth={2} />
           </Pressable>}
         </>
       )}
