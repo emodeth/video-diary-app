@@ -177,9 +177,14 @@ export default function CropScreen() {
           <View className="flex-1 overflow-hidden rounded-t-[28px] bg-white">
             <CropHeader onBack={back} onClose={close} />
             <ScrollView key={step} className="flex-1"
-              contentContainerStyle={{ paddingHorizontal: 27, paddingTop: 9, paddingBottom: step === 2 ? 12 : 28 }}
+              contentContainerStyle={{
+                flexGrow: step === 1 && !selected ? 1 : undefined,
+                paddingHorizontal: 27,
+                paddingTop: 9,
+                paddingBottom: step === 2 ? 12 : 28,
+              }}
               keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-              <View>
+              <View style={step === 1 && !selected ? { flexGrow: 1 } : undefined}>
                 {step === 1 && <VideoSelectionStep poster={frames?.uri === selected?.id ? frames?.items[0] ?? null : null}
                   onBrowse={browse} />}
                 {step === 2 && selected && <VideoRangeStep player={player} playerStatus={status} frames={frames?.uri === selected.id ? frames.items : []}

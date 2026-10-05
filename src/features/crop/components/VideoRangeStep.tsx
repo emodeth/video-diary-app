@@ -8,6 +8,7 @@ import type {
 import { CLIP_LENGTH } from "../constants";
 import { useClipPreview } from "../hooks/useClipPreview";
 import { useCropStore } from "../store";
+import { getPreviewSize } from "../utils/getPreviewSize";
 import { VideoPreview } from "./VideoPreview";
 import { VideoTimeline } from "./VideoTimeline";
 
@@ -29,13 +30,12 @@ export function VideoRangeStep({
   const setStart = useCropStore((state) => state.setStart);
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const previewWidth = Math.min(width, 620) - 54;
-  const sheetHeight = Math.min(height * 0.91, height - insets.top - 12);
-  const previewHeight = Math.max(
-    292,
-    sheetHeight - 96 - (70 + Math.max(insets.bottom, 16)) - 292,
+  const { previewWidth, cardHeight, mediaHeight } = getPreviewSize(
+    width,
+    height,
+    insets.top,
+    insets.bottom,
   );
-  const mediaHeight = previewHeight - 52;
   const maxStart = Math.max(0, (selected?.duration ?? CLIP_LENGTH) - CLIP_LENGTH);
   const preview = useClipPreview({
     player,
@@ -60,6 +60,7 @@ export function VideoRangeStep({
         player={player}
         status={playerStatus}
         width={previewWidth}
+        cardHeight={cardHeight}
         mediaHeight={mediaHeight}
         currentTime={preview.currentTime}
         start={start}
