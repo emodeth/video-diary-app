@@ -1,10 +1,12 @@
 import { Pressable, Text, View } from "react-native";
-import type { VideoSource } from "@/types/crop";
+import { Image } from "expo-image";
+import type { VideoThumbnail } from "expo-video";
 import { Button } from "@/components/ui/Button";
+import { useCropStore } from "../store";
 import { formatTime } from "../utils/formatTime";
 
 type Props = {
-  selected: VideoSource | null;
+  poster: VideoThumbnail | null;
   onBrowse: () => void;
 };
 
@@ -26,7 +28,8 @@ function FilmIcon() {
   );
 }
 
-export function VideoSelectionStep({ selected, onBrowse }: Props) {
+export function VideoSelectionStep({ poster, onBrowse }: Props) {
+  const selected = useCropStore((state) => state.selected);
   return (
     <>
       <Text className="font-bold text-[26px] leading-[32px] tracking-[-0.7px] text-ink">Select a video</Text>
@@ -36,7 +39,8 @@ export function VideoSelectionStep({ selected, onBrowse }: Props) {
 
       {selected ? (
         <>
-          <View className="mt-[19px] h-[200px] items-center justify-center rounded-[17px] bg-[#D7E2F8]">
+          <View className="mt-[19px] h-[200px] items-center justify-center overflow-hidden rounded-[17px] bg-black">
+            {poster && <Image source={poster} contentFit="contain" style={{ width: "100%", height: "100%", position: "absolute" }} />}
             <View className="h-[52px] w-[52px] items-center justify-center rounded-full bg-white/90">
               <Text className="ml-[2px] font-sans text-[29px] leading-[34px] text-brand">▷</Text>
             </View>
@@ -68,7 +72,9 @@ export function VideoSelectionStep({ selected, onBrowse }: Props) {
           <Text className="mt-[3px] max-w-[210px] text-center font-sans text-[14px] leading-[19px] text-muted">
             Pick a video from your photo library
           </Text>
-          <Button label="Select video" size="compact" centered onPress={onBrowse} className="mt-[16px]" />
+          <View className="mt-[16px] w-full flex-row justify-center">
+            <Button label="Select video" size="compact" onPress={onBrowse} />
+          </View>
         </View>
       )}
     </>

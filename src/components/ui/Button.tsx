@@ -9,7 +9,6 @@ type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   size?: "compact" | "default" | "large";
   icon?: ReactNode;
   fullWidth?: boolean;
-  centered?: boolean;
   className?: string;
 };
 
@@ -33,7 +32,6 @@ export function Button({
   size = "default",
   icon,
   fullWidth = false,
-  centered = false,
   disabled = false,
   className = "",
   ...props
@@ -44,7 +42,7 @@ export function Button({
       accessibilityRole="button"
       accessibilityState={{ disabled: !!disabled }}
       disabled={!!disabled}
-      className={`${fullWidth ? "self-stretch" : centered ? "self-center" : "self-start"} ${className}`}
+      className={`${fullWidth ? "self-stretch" : "self-start"} ${className}`}
       style={({ pressed }) => ({
         transform: [{ scale: pressed && !disabled ? 0.96 : 1 }],
         opacity: disabled && variant !== "normal" ? 0.5 : 1,
