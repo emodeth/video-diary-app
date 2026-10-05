@@ -6,7 +6,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useVideo } from "@/features/videos/hooks";
 import { videoFile } from "@/features/videos/storage";
-import { formatTime } from "@/features/crop/utils/formatTime";
 
 function VideoPlayer({ uri }: { uri: string }) {
   const player = useVideoPlayer(uri);
@@ -36,7 +35,7 @@ export default function VideoScreen() {
               </View>}
             <Text className="mt-7 font-sans-bold text-title-lg tracking-[-0.5px] text-ink">{video.title}</Text>
             <Text className="mt-2 font-sans-medium text-meta text-muted tabular-nums">
-              {new Date(video.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })} · {formatTime(video.duration_seconds)}
+              {new Date(video.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
             </Text>
             {!!video.description && <Text className="mt-6 font-sans text-body text-ink">{video.description}</Text>}
           </>

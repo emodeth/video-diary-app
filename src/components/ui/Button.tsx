@@ -2,11 +2,12 @@ import type { ReactNode } from "react";
 import { Pressable, Text, View, type PressableProps } from "react-native";
 
 type ButtonVariant = "normal" | "ghost" | "outline" | "delete";
+type ButtonSize = "compact" | "default" | "large" | "hero";
 
 type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   label: string;
   variant?: ButtonVariant;
-  size?: "compact" | "default" | "large";
+  size?: ButtonSize;
   icon?: ReactNode;
   fullWidth?: boolean;
   className?: string;
@@ -24,6 +25,13 @@ const textVariants: Record<ButtonVariant, string> = {
   ghost: "text-brand",
   outline: "text-ink",
   delete: "text-white",
+};
+
+const sizeStyles: Record<ButtonSize, string> = {
+  compact: "h-[45px] rounded-[16px] px-6",
+  default: "h-[52px] rounded-[16px] px-6",
+  large: "h-[58px] rounded-[16px] px-6",
+  hero: "h-16 rounded-[20px] px-8",
 };
 
 export function Button({
@@ -49,7 +57,7 @@ export function Button({
       })}
     >
       <View
-        className={`${size === "large" ? "h-[58px]" : size === "compact" ? "h-[45px]" : "h-[52px]"} flex-row items-center justify-center gap-3 rounded-[16px] px-6 ${disabled && variant === "normal" ? "bg-[#E8EAEE]" : containerVariants[variant]}`}
+        className={`${sizeStyles[size]} flex-row items-center justify-center gap-3 ${disabled && variant === "normal" ? "bg-[#E8EAEE]" : containerVariants[variant]}`}
       >
         {icon}
         <Text className={`font-sans-bold text-button ${disabled && variant === "normal" ? "text-[#9AA5BE]" : textVariants[variant]}`}>{label}</Text>
