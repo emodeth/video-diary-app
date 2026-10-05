@@ -1,9 +1,10 @@
 import { Pressable, Text, View } from "react-native";
-import type { CropStep } from "@/types/crop";
+import { useCropStore } from "../store";
 
-type Props = { step: CropStep; onBack: () => void; onClose: () => void };
+type Props = { onBack: () => void; onClose: () => void };
 
-export function CropHeader({ step, onBack, onClose }: Props) {
+export function CropHeader({ onBack, onClose }: Props) {
+  const step = useCropStore((state) => state.step);
   return (
     <>
       <View className="items-center pt-[9px]"><View className="h-1 w-10 rounded-full bg-[#E6E9EF]" /></View>

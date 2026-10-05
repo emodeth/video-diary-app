@@ -1,16 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useEvent } from "expo";
+import { useVideoPlayer, type VideoThumbnail } from "expo-video";
 import { router } from "expo-router";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View, useWindowDimensions } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCreateVideo } from "@/features/videos/hooks";
-import type { VideoSource, CropStep } from "@/types/crop";
+import type { VideoSource } from "@/types/crop";
 import { VideoDetailsStep } from "./components/VideoDetailsStep";
 import { VideoRangeStep } from "./components/VideoRangeStep";
 import { CropFooter } from "./components/CropFooter";
 import { CropHeader } from "./components/CropHeader";
 import { VideoSelectionStep } from "./components/VideoSelectionStep";
+import { useCropStore } from "./store";
 import { pickVideo } from "./utils/pickVideo";
 
 function dismissCrop() {
@@ -21,12 +24,73 @@ export default function CropScreen() {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { mutateAsync: createVideo, isPending: saving } = useCreateVideo();
-  const [step, setStep] = useState<CropStep>(1);
-  const [selected, setSelected] = useState<VideoSource | null>(null);
-  const [start, setStart] = useState(0);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const step = useCropStore((state) => state.step);
+  const selected = useCropStore((state) => state.selected);
+  const previousStep = useCropStore((state) => state.previousStep);
+  const selectSource = useCropStore((state) => state.selectSource);
+  const reset = useCropStore((state) => state.reset);
+  const finishInFlight = useRef(false);
+  const mounted = useRef(false);
+  const player = useVideoPlayer(selected?.id ?? null);
+  const { status } = useEvent(player, "statusChange", { status: player.status });
+  const [frames, setFrames] = useState<{ uri: string; items: VideoThumbnail[] } | null>(null);
+  const [framesFailed, setFramesFailed] = useState(false);
   const progress = useSharedValue(0);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      reset();
+    };
+  }, [reset]);
+
+  useEffect(() => {
+    if (!selected || status !== "readyToPlay" || Platform.OS === "web") return;
+    let cancelled = false;
+    const uri = selected.id;
+    const count = 8;
+    const times = Array.from({ length: count }, (_, index) =>
+      Math.min(selected.duration - 0.01, (selected.duration * (index + 0.5)) / count));
+
+    async function loadFrames() {
+      const options = { maxWidth: 90, maxHeight: 160 };
+      try {
+        const items = await player.generateThumbnailsAsync(times, options);
+        if (items.length !== count) throw new Error("Incomplete video thumbnails");
+        if (!cancelled) setFrames({ uri, items });
+      } catch {
+        // A single bad frame can reject the batch. Keep the frames that do render.
+        const partial: (VideoThumbnail | null)[] = [];
+        for (const time of times) {
+          if (cancelled) return;
+          try {
+            partial.push((await player.generateThumbnailsAsync([time], options))[0] ?? null);
+          } catch {
+            partial.push(null);
+          }
+          const first = partial.find((item): item is VideoThumbnail => item !== null);
+          if (first && !cancelled) {
+            setFrames({ uri, items: times.map((_, index) => partial[index] ?? first) });
+          }
+        }
+        const available = partial.flatMap((item, index) => item ? [{ item, index }] : []);
+        if (cancelled) return;
+        if (available.length === 0) {
+          setFramesFailed(true);
+          return;
+        }
+        setFrames({
+          uri,
+          items: partial.map((item, index) => item ?? available.reduce((closest, candidate) =>
+            Math.abs(candidate.index - index) < Math.abs(closest.index - index) ? candidate : closest).item),
+        });
+      }
+    }
+
+    void loadFrames();
+    return () => { cancelled = true; };
+  }, [player, selected, status]);
 
   useEffect(() => {
     progress.value = withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) });
@@ -46,29 +110,28 @@ export default function CropScreen() {
   }
 
   function close() {
-    if (!saving) dismiss();
+    if (!saving && !finishInFlight.current) dismiss();
   }
 
   function back() {
-    if (saving) return;
+    if (saving || finishInFlight.current) return;
     if (step === 1) close();
-    else setStep((step - 1) as CropStep);
-  }
-
-  function next() {
-    if (step < 3) setStep((step + 1) as CropStep);
+    else previousStep();
   }
 
   function chooseSource(source: VideoSource) {
-    setSelected(source);
-    setStart(0);
+    player.pause();
+    selectSource(source);
+    setFrames(null);
+    setFramesFailed(false);
   }
 
   async function browse() {
     try {
       const source = await pickVideo();
-      if (source) chooseSource(source);
+      if (source && mounted.current) chooseSource(source);
     } catch (error) {
+      if (!mounted.current) return;
       const reason = error instanceof Error ? error.message : "";
       if (reason === "permission") {
         Alert.alert("Library access needed", "Allow access to choose a video from your library.");
@@ -81,7 +144,9 @@ export default function CropScreen() {
   }
 
   async function finish() {
-    if (saving || !selected || !name.trim()) return;
+    const { selected, start, name, description } = useCropStore.getState();
+    if (saving || finishInFlight.current || !selected || !name.trim()) return;
+    finishInFlight.current = true;
     try {
       await createVideo({
         sourceUri: selected.id,
@@ -92,6 +157,8 @@ export default function CropScreen() {
       dismiss();
     } catch {
       Alert.alert("Couldn’t save video", "Please try cropping this video again.");
+    } finally {
+      finishInFlight.current = false;
     }
   }
 
@@ -108,20 +175,19 @@ export default function CropScreen() {
       >
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1">
           <View className="flex-1 overflow-hidden rounded-t-[28px] bg-white">
-            <CropHeader step={step} onBack={back} onClose={close} />
+            <CropHeader onBack={back} onClose={close} />
             <ScrollView key={step} className="flex-1"
-              contentContainerStyle={{ paddingHorizontal: 27, paddingTop: 9, paddingBottom: 28 }}
+              contentContainerStyle={{ paddingHorizontal: 27, paddingTop: 9, paddingBottom: step === 2 ? 12 : 28 }}
               keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View>
-                {step === 1 && <VideoSelectionStep selected={selected} onBrowse={browse} />}
-                {step === 2 && selected && <VideoRangeStep selected={selected} start={start} onStartChange={setStart} />}
-                {step === 3 && selected && <VideoDetailsStep selected={selected} start={start}
-                  name={name} description={description} onNameChange={setName}
-                  onDescriptionChange={setDescription} />}
+                {step === 1 && <VideoSelectionStep poster={frames?.uri === selected?.id ? frames?.items[0] ?? null : null}
+                  onBrowse={browse} />}
+                {step === 2 && selected && <VideoRangeStep player={player} playerStatus={status} frames={frames?.uri === selected.id ? frames.items : []}
+                  framesFailed={framesFailed || Platform.OS === "web"} />}
+                {step === 3 && selected && <VideoDetailsStep frames={frames?.uri === selected.id ? frames.items : []} />}
               </View>
             </ScrollView>
-            <CropFooter step={step} bottomInset={insets.bottom} hasSelection={!!selected}
-              hasName={!!name.trim()} saving={saving} onNext={next} onBack={back} onFinish={finish} />
+            <CropFooter bottomInset={insets.bottom} saving={saving} onBack={back} onFinish={finish} />
           </View>
         </KeyboardAvoidingView>
       </Animated.View>
