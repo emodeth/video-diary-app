@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from "react-native";
 import { Play } from "lucide-react-native";
 import { VideoView, type VideoPlayer, type VideoPlayerStatus } from "expo-video";
+import { PreviewSkeleton } from "./PreviewSkeleton";
 import { PreviewScrubber } from "./PreviewScrubber";
 
 type Props = {
@@ -37,9 +38,7 @@ export function VideoPreview({ player, status, width, cardHeight, mediaHeight, c
           <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
             {status === "error" ? (
               <View className="rounded-xl bg-white/90 px-4 py-3"><Text className="font-sans-semibold text-hint text-ink">Couldn’t preview this video</Text></View>
-            ) : !hasRenderedFrame ? (
-              <View className="rounded-xl bg-white/90 px-4 py-3"><Text className="font-sans-semibold text-hint text-ink">Loading preview…</Text></View>
-            ) : !isPlaying ? (
+            ) : hasRenderedFrame && !isPlaying ? (
               <View className="h-[58px] w-[58px] items-center justify-center rounded-full bg-white/85">
                 <Play size={28} color="#2563EB" fill="#2563EB" strokeWidth={1.5} style={{ marginLeft: 4 }} />
               </View>
@@ -48,6 +47,7 @@ export function VideoPreview({ player, status, width, cardHeight, mediaHeight, c
         </View>
         <PreviewScrubber currentTime={currentTime} start={start} clipLength={clipLength}
           progress={progress} onScrub={onScrub} />
+        {status !== "error" && !hasRenderedFrame && <PreviewSkeleton width={width} />}
       </View>
     </View>
   );

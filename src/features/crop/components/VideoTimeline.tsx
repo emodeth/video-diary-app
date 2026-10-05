@@ -6,9 +6,11 @@ import { Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { formatTime } from "../utils/formatTime";
 import { getStartFromPosition } from "../utils/getStartFromPosition";
+import { PreviewSkeleton } from "./PreviewSkeleton";
 
 type Props = {
   frames: VideoThumbnail[];
+  framesLoading: boolean;
   duration: number;
   start: number;
   clipLength: number;
@@ -21,6 +23,7 @@ type Props = {
 
 export function VideoTimeline({
   frames,
+  framesLoading,
   duration,
   start,
   clipLength,
@@ -123,18 +126,8 @@ export function VideoTimeline({
                   style={{ width: `${100 / frames.length}%`, height: "100%" }}
                 />
               ))
-            : Array.from({ length: 8 }, (_, index) => (
-                <View
-                  key={index}
-                  pointerEvents="none"
-                  className="flex-1 border-r border-white/70"
-                  style={{
-                    backgroundColor: ["#DEDBEA", "#E8E6F0", "#F0EEF5"][
-                      index % 3
-                    ],
-                  }}
-                />
-              ))}
+            : <PreviewSkeleton width={width} shimmer={framesLoading}
+                label={framesLoading ? "Timeline frames loading" : "Timeline frames unavailable"} />}
           <View
             pointerEvents="none"
             style={{ width: frameWidth, left }}

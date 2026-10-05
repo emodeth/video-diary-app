@@ -74,6 +74,7 @@ export function VideoRangeStep({
       />
       <VideoTimeline
         frames={frames}
+        framesLoading={frames.length === 0 && !framesFailed}
         duration={selected.duration}
         start={start}
         clipLength={CLIP_LENGTH}
