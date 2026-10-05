@@ -1,6 +1,6 @@
 import { router } from "expo-router";
+import { Play } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
-import { PlayMark } from "./PlayMark";
 import type { Video } from "../../../types/videos";
 import { formatTime } from "@/features/crop/utils/formatTime";
 
@@ -17,7 +17,11 @@ export function VideoRow({ video }: VideoRowProps) {
       className="min-h-[135px] flex-row items-center py-[18px] active:opacity-70"
     >
       <View className="h-[76px] w-[96px] overflow-hidden rounded-[12px] bg-brand-soft">
-        <View className="absolute inset-0 items-center justify-center"><PlayMark /></View>
+        <View className="absolute inset-0 items-center justify-center">
+          <View className="h-9 w-9 items-center justify-center rounded-full bg-white/90">
+            <Play size={17} color="#2563EB" fill="#2563EB" strokeWidth={1.5} style={{ marginLeft: 2 }} />
+          </View>
+        </View>
         <View className="absolute bottom-[6px] right-[6px] rounded-full bg-white/90 px-[7px] py-[2px]">
           <Text className="font-semibold text-[11.5px] leading-[14px] text-ink tabular-nums">{formatTime(video.duration_seconds)}</Text>
         </View>
