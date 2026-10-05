@@ -48,9 +48,9 @@ export function VideoRow({ video }: VideoRowProps) {
         </View>
       </View>
       <View className="min-w-0 flex-1 pl-[16px]">
-        <Text className="font-sans-semibold text-[18px] leading-[24px] text-ink" numberOfLines={1}>{video.title}</Text>
-        <Text className="mt-[3px] font-sans text-[16px] leading-[22px] text-muted" numberOfLines={2}>{video.description}</Text>
-        <Text className="mt-[5px] font-sans-medium text-[13px] leading-[18px] text-muted tabular-nums">{new Date(video.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</Text>
+        <Text className="font-sans-semibold text-row text-ink" numberOfLines={1}>{video.title}</Text>
+        <Text className="mt-[3px] font-sans text-secondary text-muted" numberOfLines={2}>{video.description}</Text>
+        <Text className="mt-[5px] font-sans-medium text-caption text-muted tabular-nums">{new Date(video.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</Text>
       </View>
     </Pressable>
   );
