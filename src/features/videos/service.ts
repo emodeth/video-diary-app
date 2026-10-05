@@ -5,6 +5,7 @@ import { deleteVideoFile, storeTrimmedVideo } from "./storage";
 
 export type CreateVideoInput = {
   sourceUri: string;
+  thumbnailFileName: string;
   startSeconds: number;
   title: string;
   description: string;
@@ -23,6 +24,7 @@ export async function createVideo(db: SQLiteDatabase, input: CreateVideoInput) {
       title: input.title.trim(),
       description: input.description.trim(),
       fileName,
+      thumbnailFileName: input.thumbnailFileName,
       durationSeconds: 5,
       startSeconds: input.startSeconds,
       createdAt: new Date().toISOString(),
@@ -31,7 +33,7 @@ export async function createVideo(db: SQLiteDatabase, input: CreateVideoInput) {
     try {
       deleteVideoFile(fileName);
     } catch {
-      // Preserve the database error if file cleanup also fails.
+      // Preserve the creation error if video cleanup also fails.
     }
     throw error;
   }

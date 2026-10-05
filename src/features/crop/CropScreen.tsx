@@ -7,6 +7,8 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "
 import { scheduleOnRN } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCreateVideo } from "@/features/videos/hooks";
+import { deleteThumbnailFile, thumbnailFile } from "@/features/videos/storage";
+import { createVideoThumbnail } from "@/features/videos/thumbnail";
 import type { VideoSource } from "@/types/crop";
 import { VideoDetailsStep } from "./components/VideoDetailsStep";
 import { VideoRangeStep } from "./components/VideoRangeStep";
@@ -26,6 +28,9 @@ export default function CropScreen() {
   const { mutateAsync: createVideo, isPending: saving } = useCreateVideo();
   const step = useCropStore((state) => state.step);
   const selected = useCropStore((state) => state.selected);
+  const thumbnailStatus = useCropStore((state) => state.thumbnailStatus);
+  const thumbnailFileName = useCropStore((state) => state.thumbnailFileName);
+  const selectionVersion = useCropStore((state) => state.selectionVersion);
   const previousStep = useCropStore((state) => state.previousStep);
   const selectSource = useCropStore((state) => state.selectSource);
   const reset = useCropStore((state) => state.reset);
@@ -35,6 +40,7 @@ export default function CropScreen() {
   const { status } = useEvent(player, "statusChange", { status: player.status });
   const [frames, setFrames] = useState<{ uri: string; items: VideoThumbnail[] } | null>(null);
   const [framesFailed, setFramesFailed] = useState(false);
+  const needsTimelineFrames = step >= 2;
   const progress = useSharedValue(0);
 
   useEffect(() => {
@@ -46,7 +52,27 @@ export default function CropScreen() {
   }, [reset]);
 
   useEffect(() => {
-    if (!selected || status !== "readyToPlay" || Platform.OS === "web") return;
+    if (!selected || thumbnailStatus !== "loading") return;
+    if (status === "error") {
+      useCropStore.getState().setThumbnailError(selectionVersion);
+      return;
+    }
+    if (status !== "readyToPlay") return;
+    let cancelled = false;
+
+    void createVideoThumbnail(player)
+      .then((fileName) => {
+        if (cancelled || !useCropStore.getState().setThumbnail(selectionVersion, fileName)) {
+          deleteThumbnailFile(fileName);
+        }
+      })
+      .catch(() => useCropStore.getState().setThumbnailError(selectionVersion));
+
+    return () => { cancelled = true; };
+  }, [player, selected, selectionVersion, status, thumbnailStatus]);
+
+  useEffect(() => {
+    if (!needsTimelineFrames || !selected || status !== "readyToPlay" || thumbnailStatus === "loading" || Platform.OS === "web") return;
     let cancelled = false;
     const uri = selected.id;
     const count = 8;
@@ -90,7 +116,7 @@ export default function CropScreen() {
 
     void loadFrames();
     return () => { cancelled = true; };
-  }, [player, selected, status]);
+  }, [player, selected, status, needsTimelineFrames, thumbnailStatus]);
 
   useEffect(() => {
     progress.value = withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) });
@@ -144,16 +170,18 @@ export default function CropScreen() {
   }
 
   async function finish() {
-    const { selected, start, name, description } = useCropStore.getState();
-    if (saving || finishInFlight.current || !selected || !name.trim()) return;
+    const { selected, start, name, description, thumbnailFileName, thumbnailStatus } = useCropStore.getState();
+    if (saving || finishInFlight.current || !selected || !name.trim() || !thumbnailFileName || thumbnailStatus !== "ready") return;
     finishInFlight.current = true;
     try {
       await createVideo({
         sourceUri: selected.id,
+        thumbnailFileName,
         startSeconds: start,
         title: name,
         description,
       });
+      useCropStore.getState().markThumbnailSaved();
       dismiss();
     } catch {
       Alert.alert("Couldn’t save video", "Please try cropping this video again.");
@@ -185,7 +213,7 @@ export default function CropScreen() {
               }}
               keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View style={step === 1 && !selected ? { flexGrow: 1 } : undefined}>
-                {step === 1 && <VideoSelectionStep poster={frames?.uri === selected?.id ? frames?.items[0] ?? null : null}
+                {step === 1 && <VideoSelectionStep poster={thumbnailFileName ? thumbnailFile(thumbnailFileName).uri : null}
                   onBrowse={browse} />}
                 {step === 2 && selected && <VideoRangeStep player={player} playerStatus={status} frames={frames?.uri === selected.id ? frames.items : []}
                   framesFailed={framesFailed || Platform.OS === "web"} />}
