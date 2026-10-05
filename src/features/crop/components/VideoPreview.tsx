@@ -7,6 +7,7 @@ type Props = {
   player: VideoPlayer;
   status: VideoPlayerStatus;
   width: number;
+  cardHeight: number;
   mediaHeight: number;
   currentTime: number;
   start: number;
@@ -19,11 +20,11 @@ type Props = {
   onScrub: (progress: number, phase: "begin" | "move" | "end" | "accessibility") => void;
 };
 
-export function VideoPreview({ player, status, width, mediaHeight, currentTime, start, clipLength,
+export function VideoPreview({ player, status, width, cardHeight, mediaHeight, currentTime, start, clipLength,
   progress, isPlaying, hasRenderedFrame, onTogglePlayback, onFirstFrameRender, onScrub }: Props) {
   return (
     <View className="mt-3">
-      <View style={{ width }} className="relative self-center overflow-hidden rounded-[12px] bg-black">
+      <View style={{ width, height: cardHeight }} className="relative self-center overflow-hidden rounded-[12px] bg-black">
         <View style={{ height: mediaHeight }}>
           <VideoView player={player} nativeControls={false} contentFit="contain" surfaceType="textureView"
             onFirstFrameRender={onFirstFrameRender} style={{ width: "100%", height: "100%" }} />
