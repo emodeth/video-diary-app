@@ -1,0 +1,9 @@
+{
+  "brand": { "DEFAULT": "#2563EB", "soft": "#EFF4FF" },
+  "ink": "#101828",
+  "muted": "#667085",
+  "line": "#EAECF0",
+  "surface": "#FFFFFF",
+  "danger": { "DEFAULT": "#D92D20", "soft": "#FEF3F2" },
+  "onBrand": "#FFFFFF"
+}
