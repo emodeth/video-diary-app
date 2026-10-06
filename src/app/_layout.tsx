@@ -10,6 +10,7 @@ import { Figtree_700Bold } from "@expo-google-fonts/figtree/700Bold";
 import { StatusBar } from "expo-status-bar";
 import { queryClient } from "@/lib/queryClient";
 import { DATABASE_NAME, initializeDatabase, SQLiteProvider } from "@/db";
+import { ToastProvider, ToastViewport } from "@/components/ui/Toast";
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -26,14 +27,17 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <QueryClientProvider client={queryClient}>
         <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
-          <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="videos/[id]" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="crop"
-              options={{ presentation: "transparentModal", animation: "none", headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
-            />
-          </Stack>
+          <ToastProvider>
+            <Stack>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="videos/[id]" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="crop"
+                options={{ presentation: "transparentModal", animation: "none", headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
+              />
+            </Stack>
+            <ToastViewport />
+          </ToastProvider>
         </SQLiteProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

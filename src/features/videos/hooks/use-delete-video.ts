@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Alert } from "react-native";
+import { useToast } from "@/components/ui/Toast";
 import type { Video } from "@/types/videos";
 import { deleteVideo } from "../repository";
 import { deleteThumbnailFile, deleteVideoFile } from "../storage";
@@ -11,7 +11,9 @@ import { videoKeys } from "./keys";
 export function useDeleteVideo() {
   const db = useSQLiteContext();
   const queryClient = useQueryClient();
+  const showToast = useToast();
   const [deleting, setDeleting] = useState(false);
+  const [videoToDelete, setVideoToDelete] = useState<Video | null>(null);
 
   async function removeVideo(video: Video) {
     if (deleting) return;
@@ -26,19 +28,24 @@ export function useDeleteVideo() {
       } catch {
         // The library entry is removed even if a stored file cannot be cleaned up.
       }
+      setVideoToDelete(null);
       router.back();
+      showToast("Video deleted from your diary");
     } catch {
-      Alert.alert("Couldn’t delete video", "Please try again.");
+      showToast("Couldn’t delete video. Please try again", "error");
       setDeleting(false);
     }
   }
 
   function confirmDelete(video: Video) {
-    Alert.alert("Delete video?", `“${video.title}” will be permanently deleted.`, [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete video", style: "destructive", onPress: () => { void removeVideo(video); } },
-    ]);
+    setVideoToDelete(video);
   }
 
-  return { deleting, confirmDelete };
+  return {
+    deleting,
+    videoToDelete,
+    confirmDelete,
+    cancelDelete: () => setVideoToDelete(null),
+    deleteConfirmed: () => { if (videoToDelete) void removeVideo(videoToDelete); },
+  };
 }
