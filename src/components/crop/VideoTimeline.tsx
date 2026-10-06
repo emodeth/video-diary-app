@@ -6,7 +6,7 @@ import { Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { formatTime } from "@/lib/formatTime";
 import { getStartFromPosition } from "@/lib/getStartFromPosition";
-import { PreviewSkeleton } from "@/components/crop/PreviewSkeleton";
+import { PreviewSkeleton } from "@/components/PreviewSkeleton";
 
 type Props = {
   frames: VideoThumbnail[];

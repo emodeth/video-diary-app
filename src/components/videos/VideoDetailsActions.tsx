@@ -32,3 +32,12 @@ export function VideoDetailsActions({ disabled, onEdit, onDelete }: Props) {
     </View>
   );
 }
+
+export function VideoDetailsActionsSkeleton() {
+  return (
+    <View accessibilityLabel="Loading video actions" className="px-6 pb-2 pt-4">
+      <View className="h-[52px] rounded-[16px] bg-line" />
+      <View className="mt-2 h-[52px] rounded-[16px] bg-line" />
+    </View>
+  );
+}

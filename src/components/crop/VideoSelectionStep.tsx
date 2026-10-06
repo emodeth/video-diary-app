@@ -1,14 +1,15 @@
 import { Text, View } from "react-native";
+import type { VideoPlayer as ExpoVideoPlayer } from "expo-video";
 import { useCropStore } from "@/stores/crop.store";
 import { EmptyVideoSelection } from "@/components/crop/EmptyVideoSelection";
 import { SelectedVideoSelection } from "@/components/crop/SelectedVideoSelection";
 
 type Props = {
-  poster: string | null;
+  player: ExpoVideoPlayer;
   onBrowse: () => void;
 };
 
-export function VideoSelectionStep({ poster, onBrowse }: Props) {
+export function VideoSelectionStep({ player, onBrowse }: Props) {
   const selected = useCropStore((state) => state.selected);
 
   return (
@@ -20,7 +21,7 @@ export function VideoSelectionStep({ poster, onBrowse }: Props) {
         Choose a clip from your device. You’ll pick a 5-second moment next.
       </Text>
       {selected ? (
-        <SelectedVideoSelection selected={selected} poster={poster} onBrowse={onBrowse} />
+        <SelectedVideoSelection selected={selected} player={player} onBrowse={onBrowse} />
       ) : (
         <EmptyVideoSelection onBrowse={onBrowse} />
       )}
