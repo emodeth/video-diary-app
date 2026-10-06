@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Pressable, Text, View, type PressableProps } from "react-native";
 
 type ButtonVariant = "normal" | "ghost" | "outline" | "delete";
-type ButtonSize = "compact" | "default" | "large" | "hero" | "icon" | "row";
+type ButtonSize = "compact" | "default" | "large" | "dialog" | "hero" | "icon" | "row";
 
 type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   label: string;
@@ -33,6 +33,7 @@ const sizeStyles: Record<ButtonSize, string> = {
   compact: "h-[45px] rounded-[16px] px-6",
   default: "h-[52px] rounded-[16px] px-6",
   large: "h-[58px] rounded-[16px] px-6",
+  dialog: "h-[58px] rounded-[16px] px-3",
   hero: "h-16 rounded-[20px] px-8",
   icon: "h-16 w-16 rounded-full",
   row: "min-h-[126px] py-[16px]",
