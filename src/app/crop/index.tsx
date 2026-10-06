@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ToastViewport, useToast } from "@/components/ui/Toast";
 import { useCreateVideo } from "@/hooks";
 import { deleteThumbnailFile } from "@/lib/file-system";
+import { videoMetadataSchema } from "@/schemas/video-metadata.schema";
 import { createVideoThumbnail } from "@/lib/video-thumbnail";
 import type { VideoSource } from "@/types/crop";
 import { VideoDetailsStep } from "@/components/crop/VideoDetailsStep";
@@ -221,15 +222,16 @@ export default function CropScreen() {
 
   async function finish() {
     const { selected, start, name, description, thumbnailFileName, thumbnailStatus } = useCropStore.getState();
-    if (saving || finishInFlight.current || !selected || !name.trim() || !thumbnailFileName || thumbnailStatus !== "ready") return;
+    const metadata = videoMetadataSchema.safeParse({ name, description });
+    if (saving || finishInFlight.current || !selected || !metadata.success || !thumbnailFileName || thumbnailStatus !== "ready") return;
     finishInFlight.current = true;
     try {
       await createVideo({
         sourceUri: selected.id,
         thumbnailFileName,
         startSeconds: start,
-        title: name,
-        description,
+        title: metadata.data.name,
+        description: metadata.data.description,
       });
       useCropStore.getState().markThumbnailSaved();
       dismiss();

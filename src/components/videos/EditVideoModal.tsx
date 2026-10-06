@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/Button";
 import { MetadataForm } from "@/components/MetadataForm";
 import { ToastViewport, useToast } from "@/components/ui/Toast";
 import { formatTime } from "@/lib/formatTime";
+import { videoMetadataSchema } from "@/schemas/video-metadata.schema";
 import { thumbnailFile } from "@/lib/file-system";
 import colors from "@/theme/colors.json";
 import type { Video } from "@/types/videos";
@@ -66,10 +67,12 @@ export function EditVideoModal({ video, onClose }: Props) {
   }
 
   async function saveDetails() {
-    if (!title.trim() || saving) return;
+    if (saving) return;
+    const result = videoMetadataSchema.safeParse({ name: title, description });
+    if (!result.success) return;
     setSaving(true);
     try {
-      await updateVideoDetails(db, video.id, title.trim(), description.trim());
+      await updateVideoDetails(db, video.id, result.data.name, result.data.description);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: videoKeys.detail(video.id) }),
         queryClient.invalidateQueries({ queryKey: videoKeys.all }),
@@ -129,7 +132,7 @@ export function EditVideoModal({ video, onClose }: Props) {
               <View className="flex-row gap-[11px]">
                 <View className="w-[106px]"><Button label="Cancel" variant="outline" size="dialog" fullWidth disabled={saving} onPress={dismiss} /></View>
                 <View className="flex-1"><Button label={saving ? "Saving…" : "Save details"} size="dialog" fullWidth
-                  disabled={saving || !title.trim()} onPress={() => { void saveDetails(); }} /></View>
+                  disabled={saving || !videoMetadataSchema.safeParse({ name: title, description }).success} onPress={() => { void saveDetails(); }} /></View>
               </View>
             </View>
           </View>
