@@ -8,6 +8,7 @@ import { Figtree_500Medium } from "@expo-google-fonts/figtree/500Medium";
 import { Figtree_600SemiBold } from "@expo-google-fonts/figtree/600SemiBold";
 import { Figtree_700Bold } from "@expo-google-fonts/figtree/700Bold";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context";
 import { queryClient } from "@/lib/queryClient";
 import { DATABASE_NAME, initializeDatabase, SQLiteProvider } from "@/db";
 import { ToastProvider, ToastViewport } from "@/components/ui/Toast";
@@ -24,22 +25,24 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar style="dark" />
-      <QueryClientProvider client={queryClient}>
-        <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
-          <ToastProvider>
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="videos/[id]" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="crop"
-                options={{ presentation: "transparentModal", animation: "none", headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
-              />
-            </Stack>
-            <ToastViewport />
-          </ToastProvider>
-        </SQLiteProvider>
-      </QueryClientProvider>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <StatusBar style="dark" />
+        <QueryClientProvider client={queryClient}>
+          <SQLiteProvider databaseName={DATABASE_NAME} onInit={initializeDatabase}>
+            <ToastProvider>
+              <Stack>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen name="videos/[id]" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="crop"
+                  options={{ presentation: "transparentModal", animation: "none", headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
+                />
+              </Stack>
+              <ToastViewport />
+            </ToastProvider>
+          </SQLiteProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

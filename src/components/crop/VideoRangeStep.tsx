@@ -1,27 +1,24 @@
 import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type {
-  VideoPlayer,
-  VideoPlayerStatus,
+  VideoPlayer as ExpoVideoPlayer,
   VideoThumbnail,
 } from "expo-video";
 import { CLIP_LENGTH } from "@/constants";
 import { useClipPreview } from "@/hooks/useClipPreview";
 import { useCropStore } from "@/stores/crop.store";
 import { getPreviewSize } from "@/lib/getPreviewSize";
-import { VideoPreview } from "@/components/crop/VideoPreview";
+import { VideoPlayer } from "@/components/VideoPlayer";
 import { VideoTimeline } from "@/components/crop/VideoTimeline";
 
 type Props = {
-  player: VideoPlayer;
-  playerStatus: VideoPlayerStatus;
+  player: ExpoVideoPlayer;
   frames: VideoThumbnail[];
   framesFailed: boolean;
 };
 
 export function VideoRangeStep({
   player,
-  playerStatus,
   frames,
   framesFailed,
 }: Props) {
@@ -30,7 +27,7 @@ export function VideoRangeStep({
   const setStart = useCropStore((state) => state.setStart);
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { previewWidth, cardHeight, mediaHeight } = getPreviewSize(
+  const { previewWidth, cardHeight } = getPreviewSize(
     width,
     height,
     insets.top,
@@ -39,7 +36,6 @@ export function VideoRangeStep({
   const maxStart = Math.max(0, (selected?.duration ?? CLIP_LENGTH) - CLIP_LENGTH);
   const preview = useClipPreview({
     player,
-    status: playerStatus,
     start,
     maxStart,
     clipLength: CLIP_LENGTH,
@@ -56,22 +52,9 @@ export function VideoRangeStep({
       <Text className="mt-[5px] font-sans text-lead text-muted">
         Drag the frame along the timeline to choose where your clip starts.
       </Text>
-      <VideoPreview
-        player={player}
-        status={playerStatus}
-        width={previewWidth}
-        cardHeight={cardHeight}
-        mediaHeight={mediaHeight}
-        currentTime={preview.currentTime}
-        start={start}
-        clipLength={CLIP_LENGTH}
-        progress={preview.progress}
-        isPlaying={preview.isPlaying}
-        hasRenderedFrame={preview.hasRenderedFrame}
-        onTogglePlayback={preview.togglePlayback}
-        onFirstFrameRender={preview.onFirstFrameRender}
-        onScrub={preview.scrubTo}
-      />
+      <View className="mt-3">
+        <VideoPlayer player={player} width={previewWidth} height={cardHeight} />
+      </View>
       <VideoTimeline
         frames={frames}
         framesLoading={frames.length === 0 && !framesFailed}

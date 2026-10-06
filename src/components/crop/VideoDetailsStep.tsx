@@ -1,6 +1,5 @@
-import { Text, TextInput, View } from "react-native";
-import { Image } from "expo-image";
 import type { VideoThumbnail } from "expo-video";
+import { MetadataForm } from "@/components/MetadataForm";
 import { useCropStore } from "@/stores/crop.store";
 import { thumbnailFile } from "@/lib/file-system";
 import { formatTime } from "@/lib/formatTime";
@@ -21,40 +20,20 @@ export function VideoDetailsStep({ frames }: Props) {
 
   if (!selected) return null;
   const poster = frames[Math.min(frames.length - 1, Math.floor((start / selected.duration) * frames.length))] ?? null;
-  return (
-    <>
-      <Text className="font-sans-bold text-title tracking-[-0.7px] text-ink">Add details</Text>
-      <Text className="mt-[5px] font-sans text-lead text-muted">Give your video a name so you can find it later.</Text>
-      <View className="mt-[23px] flex-row items-center gap-[15px] border-b border-[#E7EAF0] pb-[22px]">
-        <View className="h-[61px] w-[81px] overflow-hidden rounded-[12px] bg-black">
-          {thumbnailFileName
-            ? <Image source={{ uri: thumbnailFile(thumbnailFileName).uri }} contentFit="contain" style={{ width: "100%", height: "100%" }} />
-            : poster && <Image source={poster} contentFit="contain" style={{ width: "100%", height: "100%" }} />}
-        </View>
-        <View className="flex-1">
-          <Text className="font-sans-semibold text-row text-ink tabular-nums">{formatTime(start)} – {formatTime(start + 5)}</Text>
-          <Text className="mt-[3px] font-sans text-meta text-muted">5-second moment from a {formatTime(selected.duration)} video</Text>
-        </View>
-      </View>
-      {thumbnailStatus === "loading" && <Text className="mt-3 font-sans text-hint text-muted">Preparing thumbnail…</Text>}
-      {thumbnailStatus === "error" && <Text className="mt-3 font-sans text-hint text-danger">Couldn’t prepare the thumbnail. Go back and choose the video again.</Text>}
-      <View className="mt-[23px] flex-row justify-between">
-        <Text className="font-sans-semibold text-body text-ink">Name</Text>
-        <Text className="font-sans-medium text-meta text-muted tabular-nums">{name.length}/40</Text>
-      </View>
-      <TextInput value={name} onChangeText={setName} maxLength={40}
-        placeholder="e.g. Ferry ride at sunrise" placeholderTextColor="#98A2B3"
-        className="mt-[8px] h-[55px] rounded-[14px] border border-[#E5E9F0] px-[16px] font-sans text-body text-ink"
-        accessibilityLabel="Video name" />
-      <View className="mt-[48px] flex-row justify-between">
-        <Text className="font-sans-semibold text-body text-ink">Description</Text>
-        <Text className="font-sans-medium text-meta text-muted tabular-nums">{description.length}/200</Text>
-      </View>
-      <TextInput value={description} onChangeText={setDescription} maxLength={200}
-        multiline textAlignVertical="top" placeholder="What makes this moment worth keeping?"
-        placeholderTextColor="#98A2B3"
-        className="mt-[8px] min-h-[130px] rounded-[14px] border border-[#E5E9F0] px-[16px] py-[15px] font-sans text-body text-ink"
-        accessibilityLabel="Video description" />
-    </>
-  );
+  return <MetadataForm
+    heading="Add details"
+    helperText="Give your video a name so you can find it later."
+    thumbnailSource={thumbnailFileName ? { uri: thumbnailFile(thumbnailFileName).uri } : poster}
+    timeRange={`${formatTime(start)} – ${formatTime(start + 5)}`}
+    clipDescription={`5-second moment from a ${formatTime(selected.duration)} video`}
+    name={name}
+    onChangeName={setName}
+    description={description}
+    onChangeDescription={setDescription}
+    thumbnailFeedback={thumbnailStatus === "loading"
+      ? { message: "Preparing thumbnail…" }
+      : thumbnailStatus === "error"
+        ? { message: "Couldn’t prepare the thumbnail. Go back and choose the video again.", isError: true }
+        : undefined}
+  />;
 }

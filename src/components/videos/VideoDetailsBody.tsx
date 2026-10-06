@@ -1,19 +1,21 @@
 import { CalendarDays, Scissors } from "lucide-react-native";
+import { useVideoPlayer } from "expo-video";
 import { Text, View } from "react-native";
 import { formatTime } from "@/lib/formatTime";
 import colors from "@/theme/colors.json";
 import type { Video } from "@/types/videos";
 import { videoFile } from "@/lib/file-system";
-import { DetailsVideoPlayer } from "@/components/videos/DetailsVideoPlayer";
+import { VideoPlayer } from "@/components/VideoPlayer";
 
 export function VideoDetailsBody({ video, previewWidth, cardHeight }: { video: Video; previewWidth: number; cardHeight: number }) {
   const file = videoFile(video.file_name);
+  const fileExists = file.exists;
+  const player = useVideoPlayer(fileExists ? file.uri : null);
 
   return (
     <>
-      {file.exists ? (
-        <DetailsVideoPlayer uri={file.uri} thumbnailFileName={video.thumbnail_file_name} duration={video.duration_seconds}
-          width={previewWidth} height={cardHeight} />
+      {fileExists ? (
+        <VideoPlayer player={player} width={previewWidth} height={cardHeight} />
       ) : (
         <View style={{ width: previewWidth, height: cardHeight }} className="self-center items-center justify-center rounded-[12px] bg-brand-soft px-6">
           <Text className="text-center font-sans-semibold text-heading text-ink">Video file unavailable</Text>

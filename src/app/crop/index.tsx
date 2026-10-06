@@ -8,7 +8,7 @@ import { scheduleOnRN } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ToastViewport, useToast } from "@/components/ui/Toast";
 import { useCreateVideo } from "@/hooks";
-import { deleteThumbnailFile, thumbnailFile } from "@/lib/file-system";
+import { deleteThumbnailFile } from "@/lib/file-system";
 import { createVideoThumbnail } from "@/lib/video-thumbnail";
 import type { VideoSource } from "@/types/crop";
 import { VideoDetailsStep } from "@/components/crop/VideoDetailsStep";
@@ -18,6 +18,7 @@ import { CropHeader } from "@/components/crop/CropHeader";
 import { VideoSelectionStep } from "@/components/crop/VideoSelectionStep";
 import { useCropStore } from "@/stores/crop.store";
 import { pickVideo } from "@/lib/pickVideo";
+import { stopVideoPreview } from "@/lib/stop-video-preview";
 
 function dismissCrop() {
   useCropStore.getState().reset();
@@ -32,8 +33,8 @@ export default function CropScreen() {
   const step = useCropStore((state) => state.step);
   const selected = useCropStore((state) => state.selected);
   const thumbnailStatus = useCropStore((state) => state.thumbnailStatus);
-  const thumbnailFileName = useCropStore((state) => state.thumbnailFileName);
   const selectionVersion = useCropStore((state) => state.selectionVersion);
+  const nextStep = useCropStore((state) => state.nextStep);
   const previousStep = useCropStore((state) => state.previousStep);
   const selectSource = useCropStore((state) => state.selectSource);
   const reset = useCropStore((state) => state.reset);
@@ -154,13 +155,29 @@ export default function CropScreen() {
   function close() {
     // Ignore a picker tap that lands on the backdrop as Android restores this screen.
     if (pickerInFlight.current || Date.now() - pickerReturnedAt.current < 600) return;
-    if (!saving && !finishInFlight.current) dismiss();
+    if (!saving && !finishInFlight.current) {
+      player.pause();
+      dismiss();
+    }
+  }
+
+  function leaveRangeStep() {
+    if (step === 2) stopVideoPreview(player);
+    else player.pause();
   }
 
   function back() {
     if (saving || finishInFlight.current) return;
     if (step === 1) close();
-    else previousStep();
+    else {
+      leaveRangeStep();
+      previousStep();
+    }
+  }
+
+  function next() {
+    leaveRangeStep();
+    nextStep();
   }
 
   function chooseSource(source: VideoSource) {
@@ -247,14 +264,13 @@ export default function CropScreen() {
               }}
               keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View style={step === 1 && !selected ? { flexGrow: 1 } : undefined}>
-                {step === 1 && <VideoSelectionStep poster={thumbnailFileName ? thumbnailFile(thumbnailFileName).uri : null}
-                  onBrowse={browse} />}
-                {step === 2 && selected && <VideoRangeStep player={player} playerStatus={status} frames={frames?.uri === selected.id ? frames.items : []}
+                {step === 1 && <VideoSelectionStep player={player} onBrowse={browse} />}
+                {step === 2 && selected && <VideoRangeStep player={player} frames={frames?.uri === selected.id ? frames.items : []}
                   framesFailed={framesFailed || Platform.OS === "web"} />}
                 {step === 3 && selected && <VideoDetailsStep frames={frames?.uri === selected.id ? frames.items : []} />}
               </View>
             </ScrollView>
-            <CropFooter bottomInset={insets.bottom} saving={saving} onBack={back} onFinish={finish} />
+            <CropFooter bottomInset={insets.bottom} saving={saving} onBack={back} onNext={next} onFinish={finish} />
           </View>
         </KeyboardAvoidingView>
       </Animated.View>
