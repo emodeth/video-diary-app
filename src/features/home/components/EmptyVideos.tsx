@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { Film } from "lucide-react-native";
 import { Text, View } from "react-native";
 import { Button } from "@/components/ui/Button";
+import { useCropStore } from "@/features/crop/store";
 import colors from "@/theme/colors.json";
 
 export function EmptyVideos() {
@@ -15,7 +16,10 @@ export function EmptyVideos() {
         Pick a video, trim a 5-second moment, and it will show up here.
       </Text>
       <View className="mt-6 w-full flex-row justify-center">
-        <Button label="Crop your first video" size="hero" onPress={() => router.push("/crop")} />
+        <Button label="Crop your first video" size="hero" onPress={() => {
+          useCropStore.getState().reset();
+          router.push("/crop");
+        }} />
       </View>
     </View>
   );

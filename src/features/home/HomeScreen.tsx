@@ -3,6 +3,7 @@ import { Plus } from "lucide-react-native";
 import { FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useVideos } from "@/features/videos/hooks";
+import { useCropStore } from "@/features/crop/store";
 import { Button } from "@/components/ui/Button";
 import colors from "@/theme/colors.json";
 import { EmptyVideos } from "./components/EmptyVideos";
@@ -64,7 +65,10 @@ export default function Home() {
       <Button
         label="Add a video"
         accessibilityLabel="Add a video"
-        onPress={() => router.push("/crop")}
+        onPress={() => {
+          useCropStore.getState().reset();
+          router.push("/crop");
+        }}
         className="absolute bottom-7 right-7 shadow-lg shadow-brand/25"
         size="icon"
         iconOnly
