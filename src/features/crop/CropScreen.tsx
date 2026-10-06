@@ -20,6 +20,7 @@ import { useCropStore } from "./store";
 import { pickVideo } from "./utils/pickVideo";
 
 function dismissCrop() {
+  useCropStore.getState().reset();
   router.back();
 }
 
@@ -37,7 +38,11 @@ export default function CropScreen() {
   const selectSource = useCropStore((state) => state.selectSource);
   const reset = useCropStore((state) => state.reset);
   const finishInFlight = useRef(false);
+  const [sessionVersion] = useState(() => useCropStore.getState().sessionVersion);
   const mounted = useRef(false);
+  const pickerInFlight = useRef(false);
+  const pickerReturnedAt = useRef(0);
+  const dismissing = useRef(false);
   const player = useVideoPlayer(selected?.id ?? null);
   const { status } = useEvent(player, "statusChange", { status: player.status });
   const [frames, setFrames] = useState<{ uri: string; items: VideoThumbnail[] } | null>(null);
@@ -49,9 +54,17 @@ export default function CropScreen() {
     mounted.current = true;
     return () => {
       mounted.current = false;
-      reset();
+      if (dismissing.current) return;
+      if (useCropStore.getState().sessionVersion !== sessionVersion) return;
+      if (Platform.OS === "android" && Date.now() - pickerReturnedAt.current < 2000) {
+        // The Android picker can remove a transparent modal as it returns.
+        // Restore the sheet with the selection that was just made.
+        setTimeout(() => router.push("/crop"), 0);
+      } else if (!pickerInFlight.current) {
+        reset();
+      }
     };
-  }, [reset]);
+  }, [reset, sessionVersion]);
 
   useEffect(() => {
     if (!selected || thumbnailStatus !== "loading") return;
@@ -130,6 +143,7 @@ export default function CropScreen() {
   const backdropAnimation = useAnimatedStyle(() => ({ opacity: progress.value * 0.35 }));
 
   function dismiss() {
+    dismissing.current = true;
     // Reanimated shared values are intentionally mutable outside React render.
     // eslint-disable-next-line react-hooks/immutability
     progress.value = withTiming(0, { duration: 220, easing: Easing.in(Easing.cubic) }, (finished) => {
@@ -138,6 +152,8 @@ export default function CropScreen() {
   }
 
   function close() {
+    // Ignore a picker tap that lands on the backdrop as Android restores this screen.
+    if (pickerInFlight.current || Date.now() - pickerReturnedAt.current < 600) return;
     if (!saving && !finishInFlight.current) dismiss();
   }
 
@@ -155,9 +171,20 @@ export default function CropScreen() {
   }
 
   async function browse() {
+    if (pickerInFlight.current) return;
+    pickerInFlight.current = true;
     try {
       const source = await pickVideo();
-      if (source && mounted.current) chooseSource(source);
+      if (useCropStore.getState().sessionVersion !== sessionVersion) return;
+      if (source) {
+        pickerReturnedAt.current = Date.now();
+        if (mounted.current) {
+          chooseSource(source);
+        } else {
+          useCropStore.getState().selectSource(source);
+          router.push("/crop");
+        }
+      }
     } catch (error) {
       if (!mounted.current) return;
       const reason = error instanceof Error ? error.message : "";
@@ -168,6 +195,10 @@ export default function CropScreen() {
       } else {
         showToast("Couldn’t open library. Please try again", "error");
       }
+    } finally {
+      pickerInFlight.current = false;
+      if (!mounted.current && pickerReturnedAt.current === 0 &&
+        useCropStore.getState().sessionVersion === sessionVersion) reset();
     }
   }
 

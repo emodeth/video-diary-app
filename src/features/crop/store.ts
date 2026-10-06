@@ -14,6 +14,7 @@ function discardThumbnail(fileName: string | null) {
 }
 
 type CropDraft = {
+  sessionVersion: number;
   step: CropStep;
   selected: VideoSource | null;
   thumbnailFileName: string | null;
@@ -38,6 +39,7 @@ type CropStore = CropDraft & {
 };
 
 const initialDraft: CropDraft = {
+  sessionVersion: 0,
   step: 1,
   selected: null,
   thumbnailFileName: null,
@@ -72,6 +74,6 @@ export const useCropStore = create<CropStore>((set, get) => ({
   reset: () => {
     const state = get();
     discardThumbnail(state.thumbnailFileName);
-    set({ ...initialDraft, selectionVersion: state.selectionVersion + 1 });
+    set({ ...initialDraft, sessionVersion: state.sessionVersion + 1, selectionVersion: state.selectionVersion + 1 });
   },
 }));

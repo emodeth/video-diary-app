@@ -1,9 +1,14 @@
 import * as ImagePicker from "expo-image-picker";
+import { Platform } from "react-native";
 import type { VideoSource } from "@/types/crop";
 
 export async function pickVideo(): Promise<VideoSource | null> {
-  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (!permission.granted) throw new Error("permission");
+  // Android's system photo picker grants access to the chosen item itself.
+  // iOS needs library permission to return the original video asset.
+  if (Platform.OS === "ios") {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) throw new Error("permission");
+  }
 
   const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["videos"] });
   if (result.canceled || !result.assets[0]) return null;
