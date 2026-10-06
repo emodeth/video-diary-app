@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { Button } from "@/components/ui/Button";
+import { videoMetadataSchema } from "@/schemas/video-metadata.schema";
 import { useCropStore } from "@/stores/crop.store";
 
 type Props = {
@@ -13,7 +14,9 @@ type Props = {
 export function CropFooter({ bottomInset, saving, onBack, onNext, onFinish }: Props) {
   const step = useCropStore((state) => state.step);
   const hasSelection = useCropStore((state) => state.selected !== null);
-  const hasName = useCropStore((state) => !!state.name.trim());
+  const name = useCropStore((state) => state.name);
+  const description = useCropStore((state) => state.description);
+  const validMetadata = videoMetadataSchema.safeParse({ name, description }).success;
   const thumbnailStatus = useCropStore((state) => state.thumbnailStatus);
   return (
     <View className="border-t border-[#F2F3F6] bg-white px-[27px] pt-[12px]" style={{ paddingBottom: Math.max(bottomInset, 16) }}>
@@ -21,7 +24,7 @@ export function CropFooter({ bottomInset, saving, onBack, onNext, onFinish }: Pr
       {step === 2 && <Button label="Next" size="large" fullWidth onPress={onNext} />}
       {step === 3 && <View className="flex-row gap-[11px]">
         <View className="w-[95px]"><Button label="Back" variant="outline" size="large" fullWidth disabled={saving} onPress={onBack} /></View>
-        <View className="flex-1"><Button label={saving ? "Saving…" : thumbnailStatus === "loading" ? "Preparing…" : "✂  Crop video"} size="large" fullWidth disabled={!hasName || saving || thumbnailStatus !== "ready"} onPress={onFinish} /></View>
+        <View className="flex-1"><Button label={saving ? "Saving…" : thumbnailStatus === "loading" ? "Preparing…" : "✂  Crop video"} size="large" fullWidth disabled={!validMetadata || saving || thumbnailStatus !== "ready"} onPress={onFinish} /></View>
       </View>}
     </View>
   );
