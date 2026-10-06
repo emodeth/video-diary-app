@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useEvent } from "expo";
 import { useVideoPlayer, type VideoThumbnail } from "expo-video";
 import { router } from "expo-router";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View, useWindowDimensions } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View, useWindowDimensions } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ToastViewport, useToast } from "@/components/ui/Toast";
 import { useCreateVideo } from "@/features/videos/hooks";
 import { deleteThumbnailFile, thumbnailFile } from "@/features/videos/storage";
 import { createVideoThumbnail } from "@/features/videos/thumbnail";
@@ -25,6 +26,7 @@ function dismissCrop() {
 export default function CropScreen() {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const showToast = useToast();
   const { mutateAsync: createVideo, isPending: saving } = useCreateVideo();
   const step = useCropStore((state) => state.step);
   const selected = useCropStore((state) => state.selected);
@@ -160,11 +162,11 @@ export default function CropScreen() {
       if (!mounted.current) return;
       const reason = error instanceof Error ? error.message : "";
       if (reason === "permission") {
-        Alert.alert("Library access needed", "Allow access to choose a video from your library.");
+        showToast("Allow library access to choose a video", "error");
       } else if (reason === "tooShort") {
-        Alert.alert("Choose a longer video", "Your video needs to be at least 5 seconds long.");
+        showToast("Choose a video at least 5 seconds long", "error");
       } else {
-        Alert.alert("Couldn’t open library", "Please try choosing a video again.");
+        showToast("Couldn’t open library. Please try again", "error");
       }
     }
   }
@@ -183,8 +185,9 @@ export default function CropScreen() {
       });
       useCropStore.getState().markThumbnailSaved();
       dismiss();
+      showToast("Video saved to your diary");
     } catch {
-      Alert.alert("Couldn’t save video", "Please try cropping this video again.");
+      showToast("Couldn’t save video. Please try again", "error");
     } finally {
       finishInFlight.current = false;
     }
@@ -224,6 +227,7 @@ export default function CropScreen() {
           </View>
         </KeyboardAvoidingView>
       </Animated.View>
+      <ToastViewport bottomOffset={96} />
     </View>
   );
 }

@@ -6,6 +6,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { Button } from "@/components/ui/Button";
 import { getPreviewSize } from "@/features/crop/utils/getPreviewSize";
 import colors from "@/theme/colors.json";
+import { DeleteVideoDialog } from "./components/DeleteVideoDialog";
 import { EditVideoModal } from "./components/EditVideoModal";
 import { VideoDetailsActions } from "./components/VideoDetailsActions";
 import { VideoDetailsBody } from "./components/VideoDetailsBody";
@@ -16,7 +17,7 @@ import { useVideo } from "./hooks/use-video";
 export function VideoDetailsScreen({ videoId }: { videoId: number }) {
   const { data: video, isPending, isError, refetch } = useVideo(videoId);
   const [editing, setEditing] = useState(false);
-  const { deleting, confirmDelete } = useDeleteVideo();
+  const { deleting, videoToDelete, confirmDelete, cancelDelete, deleteConfirmed } = useDeleteVideo();
   const loading = isPending && Number.isInteger(videoId) && videoId > 0;
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -49,6 +50,10 @@ export function VideoDetailsScreen({ videoId }: { videoId: number }) {
           onDelete={() => { if (video) confirmDelete(video); }} />
       )}
       {editing && video && <EditVideoModal video={video} onClose={() => setEditing(false)} />}
+      {videoToDelete && (
+        <DeleteVideoDialog title={videoToDelete.title} deleting={deleting}
+          onCancel={cancelDelete} onDelete={deleteConfirmed} />
+      )}
     </SafeAreaView>
   );
 }

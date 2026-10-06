@@ -4,7 +4,6 @@ import { Image } from "expo-image";
 import { useSQLiteContext } from "expo-sqlite";
 import { X } from "lucide-react-native";
 import {
-  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -19,6 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { Button } from "@/components/ui/Button";
+import { ToastViewport, useToast } from "@/components/ui/Toast";
 import { formatTime } from "@/features/crop/utils/formatTime";
 import { thumbnailFile } from "@/features/videos/storage";
 import colors from "@/theme/colors.json";
@@ -36,6 +36,7 @@ export function EditVideoModal({ video, onClose }: Props) {
   const queryClient = useQueryClient();
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const showToast = useToast();
   const [title, setTitle] = useState(video.title);
   const [description, setDescription] = useState(video.description);
   const [saving, setSaving] = useState(false);
@@ -75,8 +76,9 @@ export function EditVideoModal({ video, onClose }: Props) {
         queryClient.invalidateQueries({ queryKey: videoKeys.all }),
       ]);
       animateOut();
+      showToast("Video details saved");
     } catch {
-      Alert.alert("Couldn’t save details", "Please try again.");
+      showToast("Couldn’t save details. Please try again", "error");
     } finally {
       setSaving(false);
     }
@@ -152,6 +154,7 @@ export function EditVideoModal({ video, onClose }: Props) {
           </View>
           </KeyboardAvoidingView>
         </Animated.View>
+        <ToastViewport bottomOffset={96} />
       </View>
     </Modal>
   );
