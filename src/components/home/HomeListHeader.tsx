@@ -13,7 +13,9 @@ export function HomeListHeader({ totalVideos, totalSeconds, statsError }: HomeLi
       <Text className="mt-[3px] font-sans text-secondary text-muted">
         {totalVideos === undefined || totalSeconds === undefined
           ? statsError ? "Library totals unavailable" : "Loading library totals…"
-          : `${totalVideos} ${totalVideos === 1 ? "video" : "videos"}, ${totalSeconds} ${totalSeconds === 1 ? "second" : "seconds"} in all`}
+          : totalVideos === 0
+            ? "Your moments, all in one place"
+            : `${totalVideos} ${totalVideos === 1 ? "video" : "videos"}, ${totalSeconds} ${totalSeconds === 1 ? "second" : "seconds"} in all`}
       </Text>
     </View>
   );

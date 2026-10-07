@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Image, type ImageProps } from "expo-image";
 import { useController, useForm } from "react-hook-form";
-import { Text, TextInput, View } from "react-native";
-import { DESCRIPTION_MAX, NAME_MAX } from "@/constants";
+import { Keyboard, ScrollView, Text, TextInput, View } from "react-native";
+import { CONTENT_HORIZONTAL_PADDING, DESCRIPTION_MAX, NAME_MAX } from "@/constants";
 import { videoMetadataSchema, type VideoMetadata } from "@/schemas/videoMetadata.schema";
 
 type Props = {
@@ -31,6 +31,8 @@ export function MetadataForm({
   onChangeDescription,
   thumbnailFeedback,
 }: Props) {
+  const scrollRef = useRef<ScrollView>(null);
+  const descriptionFocused = useRef(false);
   const { control, getValues, setValue } = useForm<VideoMetadata>({
     resolver: zodResolver(videoMetadataSchema),
     defaultValues: { name, description },
@@ -46,8 +48,17 @@ export function MetadataForm({
     if (getValues("description") !== description) setValue("description", description, { shouldValidate: true });
   }, [description, getValues, name, setValue]);
 
+  useEffect(() => {
+    const subscription = Keyboard.addListener("keyboardDidShow", () => {
+      if (descriptionFocused.current) scrollRef.current?.scrollToEnd({ animated: true });
+    });
+    return () => subscription.remove();
+  }, []);
+
   return (
-    <>
+    <ScrollView ref={scrollRef} className="flex-1" keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingHorizontal: CONTENT_HORIZONTAL_PADDING, paddingTop: 9, paddingBottom: 28 }}>
       <Text className="font-sans-bold text-title tracking-[-0.7px] text-ink">{heading}</Text>
       <Text className="mt-[5px] font-sans text-lead text-muted">{helperText}</Text>
       <View className="mt-[23px] flex-row items-center gap-[15px] border-b border-[#E7EAF0] pb-[22px]">
@@ -73,7 +84,7 @@ export function MetadataForm({
       <TextInput value={nameField.value} onChangeText={(value) => {
         nameField.onChange(value);
         onChangeName(value);
-      }} onBlur={nameField.onBlur} maxLength={NAME_MAX}
+      }} onFocus={() => { descriptionFocused.current = false; }} onBlur={nameField.onBlur} maxLength={NAME_MAX}
         placeholder="e.g. Ferry ride at sunrise" placeholderTextColor="#98A2B3"
         className={`mt-[8px] h-[55px] rounded-[14px] border px-[16px] font-sans text-body text-ink ${nameError ? "border-danger" : "border-[#E5E9F0]"}`}
         accessibilityLabel="Video name" />
@@ -85,12 +96,15 @@ export function MetadataForm({
       <TextInput value={descriptionField.value} onChangeText={(value) => {
         descriptionField.onChange(value);
         onChangeDescription(value);
+      }} onFocus={() => {
+        descriptionFocused.current = true;
+        scrollRef.current?.scrollToEnd({ animated: true });
       }} onBlur={descriptionField.onBlur} maxLength={DESCRIPTION_MAX}
         multiline textAlignVertical="top" placeholder="What makes this moment worth keeping?"
         placeholderTextColor="#98A2B3"
         className={`mt-[8px] min-h-[130px] rounded-[14px] border px-[16px] py-[15px] font-sans text-body text-ink ${descriptionError ? "border-danger" : "border-[#E5E9F0]"}`}
         accessibilityLabel="Video description" />
       {descriptionError && <Text accessibilityLiveRegion="polite" className="mt-2 font-sans text-hint text-danger">{descriptionError}</Text>}
-    </>
+    </ScrollView>
   );
 }

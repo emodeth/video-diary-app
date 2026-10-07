@@ -8,15 +8,7 @@ export type PickResult =
   | { kind: "denied" }
   | { kind: "tooShort" };
 
-export async function pickVideo(): Promise<PickResult> {
-  // Android's system photo picker grants access to the chosen item itself.
-  // iOS needs library permission to return the original video asset.
-  if (Platform.OS === "ios") {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) return { kind: "denied" };
-  }
-
-  const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["videos"] });
+function readPickerResult(result: ImagePicker.ImagePickerResult): PickResult {
   if (result.canceled || !result.assets[0]) return { kind: "cancelled" };
   const asset = result.assets[0];
   const duration = (asset.duration ?? 0) / 1000;
@@ -31,4 +23,22 @@ export async function pickVideo(): Promise<PickResult> {
     width: asset.width,
     height: asset.height,
   } };
+}
+
+export async function recoverPendingVideo(): Promise<PickResult | null> {
+  if (Platform.OS !== "android") return null;
+  const result = await ImagePicker.getPendingResultAsync();
+  return result && "canceled" in result ? readPickerResult(result) : null;
+}
+
+export async function pickVideo(): Promise<PickResult> {
+  // Android's system photo picker grants access to the chosen item itself.
+  // iOS needs library permission to return the original video asset.
+  if (Platform.OS === "ios") {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return { kind: "denied" };
+  }
+
+  const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["videos"] });
+  return readPickerResult(result);
 }

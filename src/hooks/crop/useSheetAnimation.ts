@@ -4,14 +4,16 @@ import { scheduleOnRN } from "react-native-worklets";
 import { useCropStore } from "@/stores/crop.store";
 
 export function useSheetAnimation(height: number, onDismiss: () => void) {
-  // The native media picker can unmount a transparent modal. Restore the same
-  // crop session at its visible position instead of replaying the entrance.
-  const progress = useSharedValue(useCropStore.getState().sheetPresented ? 1 : 0);
+  // The native picker can remount the crop screen on its first return.
+  // A selected source means this session was already visible.
+  const progress = useSharedValue(
+    useCropStore.getState().sheetPresented || useCropStore.getState().selected ? 1 : 0,
+  );
   const dismissing = useRef(false);
   const isDismissing = useCallback(() => dismissing.current, []);
 
   useEffect(() => {
-    if (useCropStore.getState().sheetPresented) return;
+    if (useCropStore.getState().sheetPresented || useCropStore.getState().selected) return;
     useCropStore.getState().markSheetPresented();
     progress.value = withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) });
   }, [progress]);
