@@ -86,6 +86,14 @@ Names are required and limited to 40 characters; descriptions are limited to 200
 - **State and async work:** Zustand keeps the temporary crop flow state. TanStack Query handles list and detail reads, trimming and save mutations, and refreshes after changes.
 - **UI:** Expo Router handles navigation, NativeWind handles styling, and React Native Reanimated animates the crop and edit sheets.
 
+### Android playback time display
+
+On `main`, Android's exported clip may retain the source video's timestamps. The selected footage is five seconds long, but the native player controls can show a time like `00:10 / 00:11`.
+
+The separate [`fix/timestamp-player` branch](https://github.com/emodeth/video-diary-app/tree/fix/timestamp-player) uses custom playback controls to show time relative to the selected clip (`0:00 / 0:05`) and limits seeking to that range. The screenshot below shows that branch. The exported file's timestamps are unchanged; correcting the file itself would require rebasing timestamps in the Android export. The player fix remains on its own branch for review, and `expo-trim-video` and the package configuration have not been changed.
+
+<img src="docs/screenshots/fixed-timestamp.png" alt="Details screen on the fix/timestamp-player branch showing clip-relative playback controls" width="280">
+
 ### Scaling the SQLite video list
 
 The repository fetches **30 videos at a time** using a cursor made from `created_at` and `id`; the next page continues after the last row already shown. A composite index on `(created_at DESC, id DESC)` supports that ordering, including when multiple videos have the same timestamp. The home screen renders pages with React Native `FlatList` and requests another page only near the end. It gets the total video count and total duration from a separate SQL aggregate query instead of loading every row just to calculate them. SQLite runs in WAL mode, and the database schema has a versioned migration path for future changes.
