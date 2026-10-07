@@ -53,7 +53,7 @@ export const useCropStore = create<CropStore>((set, get) => ({
   selectSource: (selected) => {
     const state = get();
     safeDeleteThumbnail(state.thumbnailFileName);
-    set({ selected, start: 0, thumbnailFileName: null, thumbnailStatus: "loading", selectionVersion: state.selectionVersion + 1 });
+    set({ selected, sheetPresented: true, start: 0, thumbnailFileName: null, thumbnailStatus: "loading", selectionVersion: state.selectionVersion + 1 });
   },
   setThumbnail: (version, fileName) => {
     if (get().selectionVersion !== version || !get().selected) return false;

@@ -7,7 +7,6 @@ import {
   Modal,
   Platform,
   Pressable,
-  ScrollView,
   Text,
   View,
   useWindowDimensions,
@@ -119,22 +118,19 @@ export function EditVideoModal({ video, onClose }: Props) {
                 <X size={25} color={colors.ink} strokeWidth={2} />
               </Pressable>
             </View>
-            <ScrollView className="flex-1" keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 27, paddingTop: 9, paddingBottom: 28 }}>
-              <MetadataForm
-                heading="Edit details"
-                helperText="Update the name and description for this video."
-                thumbnailSource={video.thumbnailFileName
-                  ? { uri: thumbnailFile(video.thumbnailFileName).uri }
-                  : undefined}
-                timeRange={`${formatTime(video.startSeconds)} – ${formatTime(video.startSeconds + video.durationSeconds)}`}
-                clipDescription={`Saved ${formatTime(video.durationSeconds)} clip`}
-                name={title}
-                onChangeName={setTitle}
-                description={description}
-                onChangeDescription={setDescription}
-              />
-            </ScrollView>
+            <MetadataForm
+              heading="Edit details"
+              helperText="Update the name and description for this video."
+              thumbnailSource={video.thumbnailFileName
+                ? { uri: thumbnailFile(video.thumbnailFileName).uri }
+                : undefined}
+              timeRange={`${formatTime(video.startSeconds)} – ${formatTime(video.startSeconds + video.durationSeconds)}`}
+              clipDescription={`Saved ${formatTime(video.durationSeconds)} clip`}
+              name={title}
+              onChangeName={setTitle}
+              description={description}
+              onChangeDescription={setDescription}
+            />
             <View className="border-t border-[#F2F3F6] bg-surface px-[27px] pt-[12px]"
               style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
               <View className="flex-row gap-[11px]">

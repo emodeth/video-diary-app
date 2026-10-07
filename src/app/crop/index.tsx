@@ -101,39 +101,40 @@ export default function CropScreen() {
         ]}
       >
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
           className="flex-1"
         >
           <View className="flex-1 overflow-hidden rounded-t-[28px] bg-white">
             <CropHeader onBack={back} onClose={close} />
-            <ScrollView
-              key={step}
-              className="flex-1"
-              contentContainerStyle={{
-                flexGrow: isEmptyPicker ? 1 : undefined,
-                paddingHorizontal: CONTENT_HORIZONTAL_PADDING,
-                paddingTop: 9,
-                paddingBottom: step === 2 ? 12 : 28,
-              }}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={isEmptyPicker ? { flexGrow: 1 } : undefined}>
-                {step === 1 && (
-                  <VideoSelectionStep player={player} onBrowse={browse} />
-                )}
-                {step === 2 && selected && (
-                  <VideoRangeStep
-                    player={player}
-                    frames={currentFrames}
-                    framesFailed={framesFailed || Platform.OS === "web"}
-                  />
-                )}
-                {step === 3 && selected && (
-                  <VideoDetailsStep frames={currentFrames} />
-                )}
-              </View>
-            </ScrollView>
+            {step === 3 && selected ? (
+              <VideoDetailsStep frames={currentFrames} />
+            ) : (
+              <ScrollView
+                key={step}
+                className="flex-1"
+                contentContainerStyle={{
+                  flexGrow: isEmptyPicker ? 1 : undefined,
+                  paddingHorizontal: CONTENT_HORIZONTAL_PADDING,
+                  paddingTop: 9,
+                  paddingBottom: step === 2 ? 12 : 28,
+                }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+              >
+                <View style={isEmptyPicker ? { flexGrow: 1 } : undefined}>
+                  {step === 1 && (
+                    <VideoSelectionStep player={player} onBrowse={browse} />
+                  )}
+                  {step === 2 && selected && (
+                    <VideoRangeStep
+                      player={player}
+                      frames={currentFrames}
+                      framesFailed={framesFailed || Platform.OS === "web"}
+                    />
+                  )}
+                </View>
+              </ScrollView>
+            )}
             <CropFooter
               bottomInset={insets.bottom}
               saving={saving}

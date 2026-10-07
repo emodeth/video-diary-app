@@ -19,7 +19,10 @@ export function useCropPicker(player: VideoPlayer, isDismissing: () => boolean, 
       mounted.current = false;
       if (isDismissing() || isSaving()) return;
       if (useCropStore.getState().sessionVersion !== sessionVersion) return;
-      if (!pickerInFlight.current) useCropStore.getState().reset();
+      if (!pickerInFlight.current &&
+        Date.now() - pickerSettledAt.current >= PICKER_SETTLE_GUARD_MS) {
+        useCropStore.getState().reset();
+      }
     };
   }, [isDismissing, isSaving, sessionVersion]);
 
@@ -37,8 +40,7 @@ export function useCropPicker(player: VideoPlayer, isDismissing: () => boolean, 
         selectedFromPicker = true;
         if (mounted.current) player.pause();
         useCropStore.getState().selectSource(result.source);
-        // The native picker can temporarily unmount this screen. Reuse the
-        // existing crop route when it is still in the stack.
+        // Android can remove a transparent modal while the system picker is open.
         if (!mounted.current) router.navigate("/crop");
       } else if (mounted.current && result.kind === "denied") {
         showToast("Allow library access to choose a video", "error");

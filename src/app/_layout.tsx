@@ -12,6 +12,7 @@ import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-c
 import { queryClient } from "@/lib/queryClient";
 import { DATABASE_NAME, initializeDatabase, SQLiteProvider } from "@/db";
 import { ToastProvider, ToastViewport } from "@/components/ui/Toast";
+import { PendingPickerRecovery } from "@/components/crop/PendingPickerRecovery";
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -38,6 +39,7 @@ export default function RootLayout() {
                   options={{ presentation: "transparentModal", animation: "none", gestureEnabled: false, headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
                 />
               </Stack>
+              <PendingPickerRecovery />
               <ToastViewport />
             </ToastProvider>
           </SQLiteProvider>
