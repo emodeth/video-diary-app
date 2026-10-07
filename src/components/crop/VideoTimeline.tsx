@@ -4,8 +4,7 @@ import { Image } from "expo-image";
 import type { VideoThumbnail } from "expo-video";
 import { Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { formatTime } from "@/lib/formatTime";
-import { getStartFromPosition } from "@/lib/getStartFromPosition";
+import { formatTime, getStartFromPosition } from "@/lib/videoUtils";
 import { PreviewSkeleton } from "@/components/PreviewSkeleton";
 
 type VideoTimelineProps = {

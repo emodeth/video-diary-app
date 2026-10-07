@@ -1,7 +1,7 @@
 import { CalendarDays, Scissors } from "lucide-react-native";
 import { useVideoPlayer } from "expo-video";
 import { Text, View } from "react-native";
-import { formatTime } from "@/lib/formatTime";
+import { formatTime } from "@/lib/videoUtils";
 import colors from "@/theme/colors.json";
 import type { Video } from "@/types/videos";
 import { videoFile } from "@/lib/fileSystem";

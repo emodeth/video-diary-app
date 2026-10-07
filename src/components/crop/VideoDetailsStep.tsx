@@ -2,7 +2,7 @@ import type { VideoThumbnail } from "expo-video";
 import { MetadataForm } from "@/components/MetadataForm";
 import { useCropStore } from "@/stores/crop.store";
 import { thumbnailFile } from "@/lib/fileSystem";
-import { formatTime } from "@/lib/formatTime";
+import { formatTime } from "@/lib/videoUtils";
 
 type VideoDetailsStepProps = {
   frames: (VideoThumbnail | null)[];

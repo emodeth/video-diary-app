@@ -17,7 +17,7 @@ import { scheduleOnRN } from "react-native-worklets";
 import { Button } from "@/components/ui/Button";
 import { MetadataForm } from "@/components/MetadataForm";
 import { ToastViewport, useToast } from "@/components/ui/Toast";
-import { formatTime } from "@/lib/formatTime";
+import { formatTime } from "@/lib/videoUtils";
 import { videoMetadataSchema } from "@/schemas/videoMetadata.schema";
 import { thumbnailFile } from "@/lib/fileSystem";
 import colors from "@/theme/colors.json";

@@ -2,8 +2,7 @@ import { Text, View, useWindowDimensions } from "react-native";
 import type { VideoPlayer as ExpoVideoPlayer } from "expo-video";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { VideoSource } from "@/types/crop";
-import { formatTime } from "@/lib/formatTime";
-import { getPreviewSize } from "@/lib/getPreviewSize";
+import { formatTime, getPreviewSize } from "@/lib/videoUtils";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { Button } from "@/components/ui/Button";
 
