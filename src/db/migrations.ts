@@ -19,4 +19,6 @@ export async function initializeDatabase(db: SQLiteDatabase) {
   if (!columns.some((column) => column.name === "thumbnail_file_name")) {
     await db.execAsync("ALTER TABLE videos ADD COLUMN thumbnail_file_name TEXT");
   }
+
+  await db.execAsync("CREATE INDEX IF NOT EXISTS videos_created_at_id_idx ON videos (created_at DESC, id DESC)");
 }

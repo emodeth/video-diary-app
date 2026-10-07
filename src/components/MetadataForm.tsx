@@ -4,7 +4,7 @@ import { Image, type ImageProps } from "expo-image";
 import { useController, useForm } from "react-hook-form";
 import { Text, TextInput, View } from "react-native";
 import { DESCRIPTION_MAX, NAME_MAX } from "@/constants";
-import { videoMetadataSchema, type VideoMetadata } from "@/schemas/video-metadata.schema";
+import { videoMetadataSchema, type VideoMetadata } from "@/schemas/videoMetadata.schema";
 
 type Props = {
   heading: string;

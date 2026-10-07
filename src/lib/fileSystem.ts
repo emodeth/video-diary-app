@@ -63,3 +63,12 @@ export function deleteThumbnailFile(fileName: string) {
   const file = thumbnailFile(fileName);
   if (file.exists) file.delete();
 }
+
+export function safeDeleteThumbnail(fileName: string | null) {
+  if (!fileName) return;
+  try {
+    deleteThumbnailFile(fileName);
+  } catch {
+    // Cleanup must not interrupt the crop flow.
+  }
+}

@@ -1,7 +1,7 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 import { trimVideo } from "expo-trim-video";
 import { saveVideo } from "@/db/videos.repository";
-import { deleteVideoFile, storeTrimmedVideo } from "@/lib/file-system";
+import { deleteVideoFile, storeTrimmedVideo } from "@/lib/fileSystem";
 
 export type CreateVideoInput = {
   sourceUri: string;
@@ -32,8 +32,8 @@ export async function createVideo(db: SQLiteDatabase, input: CreateVideoInput) {
   } catch (error) {
     try {
       deleteVideoFile(fileName);
-    } catch {
-      // Preserve the creation error if video cleanup also fails.
+    } catch (cleanupError) {
+      console.warn("Could not clean up video after failed save", cleanupError);
     }
     throw error;
   }

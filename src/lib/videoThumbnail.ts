@@ -1,6 +1,6 @@
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import type { VideoPlayer } from "expo-video";
-import { storeThumbnail } from "@/lib/file-system";
+import { storeThumbnail } from "@/lib/fileSystem";
 
 export async function createVideoThumbnail(player: VideoPlayer) {
   if (player.status !== "readyToPlay") throw new Error("Video is not ready for thumbnail generation.");
