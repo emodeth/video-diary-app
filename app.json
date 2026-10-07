@@ -30,7 +30,8 @@
         }
       ],
       "expo-font",
-      "expo-image"
+      "expo-image",
+      "expo-sqlite"
     ],
     "extra": {
       "router": {},
