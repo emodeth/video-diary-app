@@ -1,14 +1,14 @@
 import { Pressable, Text, View } from "react-native";
 import { Button } from "@/components/ui/Button";
 
-type Props = {
+type DeleteVideoDialogProps = {
   title: string;
   deleting: boolean;
   onCancel: () => void;
   onDelete: () => void;
 };
 
-export function DeleteVideoDialog({ title, deleting, onCancel, onDelete }: Props) {
+export function DeleteVideoDialog({ title, deleting, onCancel, onDelete }: DeleteVideoDialogProps) {
   return (
     <View className="absolute inset-0 items-center justify-center px-6">
       <Pressable className="absolute inset-0 bg-ink/40" onPress={onCancel}

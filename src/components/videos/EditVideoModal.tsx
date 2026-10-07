@@ -25,12 +25,12 @@ import type { Video } from "@/types/videos";
 import { videoKeys } from "@/hooks/keys";
 import { listVideos, updateVideoDetails } from "@/db/videos.repository";
 
-type Props = {
+type EditVideoModalProps = {
   video: Video;
   onClose: () => void;
 };
 
-export function EditVideoModal({ video, onClose }: Props) {
+export function EditVideoModal({ video, onClose }: EditVideoModalProps) {
   const db = useSQLiteContext();
   const queryClient = useQueryClient();
   const { height } = useWindowDimensions();
@@ -109,14 +109,13 @@ export function EditVideoModal({ video, onClose }: Props) {
         >
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1">
           <View className="flex-1 overflow-hidden rounded-t-[28px] bg-surface">
-            <View className="items-center pt-[9px]"><View className="h-1 w-10 rounded-full bg-[#E6E9EF]" /></View>
+            <View className="items-center pt-[9px]"><View className="h-1 w-10 rounded-full bg-handle" /></View>
             <View className="h-[67px] flex-row items-center justify-between px-5">
               <View className="h-11 w-11" />
               <Text className="font-sans-bold text-nav text-ink">Edit video</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel="Close" disabled={saving}
-                onPress={dismiss} className="h-11 w-11 items-center justify-center">
-                <X size={25} color={colors.ink} strokeWidth={2} />
-              </Pressable>
+              <Button label="Close" accessibilityLabel="Close" variant="ghost" size="headerIcon"
+                iconOnly icon={<X size={25} color={colors.ink} strokeWidth={2} />}
+                disabled={saving} onPress={dismiss} />
             </View>
             <MetadataForm
               heading="Edit details"
@@ -131,7 +130,7 @@ export function EditVideoModal({ video, onClose }: Props) {
               description={description}
               onChangeDescription={setDescription}
             />
-            <View className="border-t border-[#F2F3F6] bg-surface px-[27px] pt-[12px]"
+            <View className="border-t border-line-subtle bg-surface px-[27px] pt-[12px]"
               style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
               <View className="flex-row gap-[11px]">
                 <View className="w-[106px]"><Button label="Cancel" variant="outline" size="dialog" fullWidth disabled={saving} onPress={dismiss} /></View>

@@ -27,10 +27,17 @@ type ToastContextValue = {
   visible: boolean;
   show: (message: string, kind?: ToastKind) => void;
 };
+type ToastProviderProps = {
+  children: ReactNode;
+  duration?: number;
+};
+type ToastViewportProps = {
+  bottomOffset?: number;
+};
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-export function ToastProvider({ children, duration = 2200 }: { children: ReactNode; duration?: number }) {
+export function ToastProvider({ children, duration = 2200 }: ToastProviderProps) {
   const [toast, setToast] = useState<ToastItem | null>(null);
   const [visible, setVisible] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -51,7 +58,7 @@ export function ToastProvider({ children, duration = 2200 }: { children: ReactNo
   return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>;
 }
 
-export function ToastViewport({ bottomOffset = 96 }: { bottomOffset?: number }) {
+export function ToastViewport({ bottomOffset = 96 }: ToastViewportProps) {
   const context = useContext(ToastContext);
   const insets = useSafeAreaInsets();
   const toast = context?.toast ?? null;
@@ -102,11 +109,11 @@ export function ToastViewport({ bottomOffset = 96 }: { bottomOffset?: number }) 
           animatedStyle,
         ]}>
         {toast.kind === "success" ? (
-          <Check size={16} color="#FFFFFF" strokeWidth={3} />
+          <Check size={16} color={colors.onBrand} strokeWidth={3} />
         ) : (
-          <AlertCircle size={16} color="#FDA29B" strokeWidth={2.5} />
+          <AlertCircle size={16} color={colors.toastErrorIcon} strokeWidth={2.5} />
         )}
-        <Text className="shrink font-sans-semibold text-body text-white">{toast.message}</Text>
+        <Text className="shrink font-sans-semibold text-body text-onBrand">{toast.message}</Text>
       </Animated.View>
     </View>
   );

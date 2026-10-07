@@ -7,7 +7,13 @@ import type { Video } from "@/types/videos";
 import { videoFile } from "@/lib/fileSystem";
 import { VideoPlayer } from "@/components/VideoPlayer";
 
-export function VideoDetailsBody({ video, previewWidth, cardHeight }: { video: Video; previewWidth: number; cardHeight: number }) {
+type VideoDetailsBodyProps = {
+  video: Video;
+  previewWidth: number;
+  cardHeight: number;
+};
+
+export function VideoDetailsBody({ video, previewWidth, cardHeight }: VideoDetailsBodyProps) {
   const file = videoFile(video.fileName);
   const fileExists = file.exists;
   const player = useVideoPlayer(fileExists ? file.uri : null);

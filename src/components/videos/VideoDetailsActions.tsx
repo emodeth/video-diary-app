@@ -3,13 +3,13 @@ import { View } from "react-native";
 import { Button } from "@/components/ui/Button";
 import colors from "@/theme/colors.json";
 
-type Props = {
+type VideoDetailsActionsProps = {
   disabled: boolean;
   onEdit: () => void;
   onDelete: () => void;
 };
 
-export function VideoDetailsActions({ disabled, onEdit, onDelete }: Props) {
+export function VideoDetailsActions({ disabled, onEdit, onDelete }: VideoDetailsActionsProps) {
   return (
     <View className="px-6 pb-2 pt-4">
       <Button

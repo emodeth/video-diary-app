@@ -1,6 +1,11 @@
 import { View } from "react-native";
 
-export function VideoDetailsSkeleton({ previewWidth, cardHeight }: { previewWidth: number; cardHeight: number }) {
+type VideoDetailsSkeletonProps = {
+  previewWidth: number;
+  cardHeight: number;
+};
+
+export function VideoDetailsSkeleton({ previewWidth, cardHeight }: VideoDetailsSkeletonProps) {
   return (
     <View accessibilityLabel="Loading video details">
       <View style={{ width: previewWidth, height: cardHeight }} className="self-center rounded-[12px] bg-line" />
