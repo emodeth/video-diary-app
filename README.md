@@ -2,7 +2,19 @@
 
 A mobile app for saving five-second moments from videos on your device. Pick a video, choose where the clip starts, add a name and description, and keep the cropped clip in a local diary. You can play saved clips, edit their details, and delete them.
 
-**Tech stack:** Expo SDK 57 · React Native · TypeScript · Expo Router · Zustand · TanStack Query · NativeWind · Expo SQLite · Zod
+## Tech stack
+
+| Technology | Role |
+| --- | --- |
+| Expo SDK 57 | App platform and native modules |
+| React Native | Mobile UI |
+| TypeScript | Type safety |
+| Expo Router | Navigation |
+| Zustand | Temporary crop flow state |
+| TanStack Query | Data fetching and mutations |
+| NativeWind | Styling |
+| Expo SQLite | Local video metadata storage |
+| Zod | Metadata validation |
 
 ## Screenshots
 
@@ -32,13 +44,14 @@ The screenshots below follow the app flow in order.
 
 ## Setup
 
-> **Full video cropping requires a development build.** `expo-trim-video` is not available in Expo Go. Use the `feature/expo-go` branch only to explore the screens without exporting a cropped clip.
+> **Recommended path: `main` with a development build.** Full video cropping requires `expo-trim-video`, which is not available in Expo Go. If you cannot set up a native build, see the [screenshots](#screenshots) and the [demo video](#demo-video) for the complete flow.
 
 ### Requirements
 
 - Node.js 22.13 or newer and npm
-- An Android device or emulator, or an iOS device or simulator on macOS
-- A native development build of this app for the complete cropping flow
+- **Android:** Android Studio with an emulator or a connected device (USB debugging enabled)
+- **iOS (macOS only):** Xcode with a simulator or a connected device
+- A native development build of this app for the complete cropping flow (the commands below create it)
 
 ### Install and run
 
@@ -55,9 +68,11 @@ npm run start
 
 Open the installed development app on the device. Rebuild it after adding or changing a native dependency. The generated `android/` and `ios/` directories are ignored by Git; native configuration belongs in `app.json` and Expo config plugins.
 
-### Expo Go branch
+### Expo Go branch (optional, limited)
 
-The `feature/expo-go` branch lets reviewers explore the same main screens and five-second selection preview in Expo Go. It saves the full source video because `expo-trim-video` requires native code outside Expo Go. Use `main` with a development build to test actual cropping. This branch uses Expo SDK 54, so it needs a compatible Expo Go version.
+If you only want to explore the screens without setting up Android Studio or Xcode, the `feature/expo-go` branch runs in Expo Go. It saves the full source video instead of a cropped clip, because `expo-trim-video` requires native code outside Expo Go.
+
+**This branch uses Expo SDK 54, so it needs an Expo Go app that supports SDK 54.** App stores usually ship only the latest SDK version, so a newer Expo Go from the store may refuse to open this branch. If that happens, use the development build on `main` instead.
 
 ```bash
 git switch feature/expo-go
@@ -65,7 +80,7 @@ npm ci
 npm run start
 ```
 
-Open the QR code in Expo Go. Switch back with `git switch main` when you want to test real cropping, then run `npm ci` again because the branches use different Expo versions.
+Open the QR code in a compatible Expo Go. Switch back with `git switch main` when you want to test real cropping, then run `npm ci` again because the branches use different Expo versions.
 
 ## Usage
 
