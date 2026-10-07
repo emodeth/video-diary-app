@@ -6,7 +6,7 @@ import type { VideoPlayer } from "expo-video";
 const SEEK_INTERVAL_MS = 40;
 const DRAG_SEEK_TOLERANCE_SECONDS = 0.35;
 
-type Options = {
+type ClipPreviewOptions = {
   player: VideoPlayer;
   start: number;
   maxStart: number;
@@ -14,7 +14,7 @@ type Options = {
   onStartChange: (start: number) => void;
 };
 
-export function useClipPreview({ player, start, maxStart, clipLength, onStartChange }: Options) {
+export function useClipPreview({ player, start, maxStart, clipLength, onStartChange }: ClipPreviewOptions) {
   const [currentTime, setCurrentTime] = useState(start);
   const startRef = useRef(start);
   const lastSeekAt = useRef(0);

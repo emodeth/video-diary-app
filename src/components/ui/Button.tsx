@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Pressable, Text, View, type PressableProps } from "react-native";
 
 type ButtonVariant = "normal" | "ghost" | "outline" | "delete";
-type ButtonSize = "compact" | "default" | "large" | "dialog" | "hero" | "icon" | "row";
+type ButtonSize = "compact" | "default" | "large" | "dialog" | "hero" | "icon" | "headerIcon" | "text" | "selection" | "row";
 
 type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   label: string;
@@ -13,6 +13,7 @@ type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   iconOnly?: boolean;
   fullWidth?: boolean;
   className?: string;
+  contentClassName?: string;
 };
 
 const containerVariants: Record<ButtonVariant, string> = {
@@ -36,6 +37,9 @@ const sizeStyles: Record<ButtonSize, string> = {
   dialog: "h-[58px] rounded-[16px] px-3",
   hero: "h-16 rounded-[20px] px-8",
   icon: "h-16 w-16 rounded-full",
+  headerIcon: "h-11 w-11",
+  text: "min-h-10 px-1",
+  selection: "",
   row: "min-h-[126px] py-[16px]",
 };
 
@@ -49,6 +53,7 @@ export function Button({
   fullWidth = false,
   disabled = false,
   className = "",
+  contentClassName = "",
   ...props
 }: ButtonProps) {
   return (
@@ -64,7 +69,7 @@ export function Button({
       })}
     >
       <View
-        className={`${sizeStyles[size]} flex-row items-center justify-center ${size === "row" ? "gap-0" : "gap-3"} ${disabled && variant === "normal" ? "bg-line" : containerVariants[variant]}`}
+        className={`${sizeStyles[size]} flex-row items-center justify-center ${size === "row" ? "gap-0" : "gap-3"} ${disabled && variant === "normal" ? "bg-line" : containerVariants[variant]} ${contentClassName}`}
       >
         {icon}
         {children ?? (!iconOnly && (

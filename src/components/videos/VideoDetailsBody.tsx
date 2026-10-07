@@ -4,11 +4,11 @@ import { Text, View } from "react-native";
 import { formatTime } from "@/lib/formatTime";
 import colors from "@/theme/colors.json";
 import type { Video } from "@/types/videos";
-import { videoFile } from "@/lib/file-system";
+import { videoFile } from "@/lib/fileSystem";
 import { VideoPlayer } from "@/components/VideoPlayer";
 
 export function VideoDetailsBody({ video, previewWidth, cardHeight }: { video: Video; previewWidth: number; cardHeight: number }) {
-  const file = videoFile(video.file_name);
+  const file = videoFile(video.fileName);
   const fileExists = file.exists;
   const player = useVideoPlayer(fileExists ? file.uri : null);
 
@@ -27,13 +27,13 @@ export function VideoDetailsBody({ video, previewWidth, cardHeight }: { video: V
         <View className="h-[32px] flex-row items-center gap-[5px] rounded-full border border-line px-3">
           <Scissors size={13} color={colors.muted} strokeWidth={1.8} />
           <Text className="font-sans-medium text-meta text-muted tabular-nums">
-            {formatTime(video.start_seconds)} – {formatTime(video.start_seconds + video.duration_seconds)}
+            {formatTime(video.startSeconds)} – {formatTime(video.startSeconds + video.durationSeconds)}
           </Text>
         </View>
         <View className="h-[32px] flex-row items-center gap-[5px] rounded-full border border-line px-3">
           <CalendarDays size={13} color={colors.muted} strokeWidth={1.8} />
           <Text className="font-sans-medium text-meta text-muted tabular-nums">
-            {new Date(video.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+            {new Date(video.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
           </Text>
         </View>
       </View>

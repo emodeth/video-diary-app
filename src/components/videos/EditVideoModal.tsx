@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { useSQLiteContext } from "expo-sqlite";
 import { X } from "lucide-react-native";
 import {
@@ -19,12 +19,12 @@ import { Button } from "@/components/ui/Button";
 import { MetadataForm } from "@/components/MetadataForm";
 import { ToastViewport, useToast } from "@/components/ui/Toast";
 import { formatTime } from "@/lib/formatTime";
-import { videoMetadataSchema } from "@/schemas/video-metadata.schema";
-import { thumbnailFile } from "@/lib/file-system";
+import { videoMetadataSchema } from "@/schemas/videoMetadata.schema";
+import { thumbnailFile } from "@/lib/fileSystem";
 import colors from "@/theme/colors.json";
 import type { Video } from "@/types/videos";
 import { videoKeys } from "@/hooks/keys";
-import { updateVideoDetails } from "@/db/videos.repository";
+import { listVideos, updateVideoDetails } from "@/db/videos.repository";
 
 type Props = {
   video: Video;
@@ -73,10 +73,18 @@ export function EditVideoModal({ video, onClose }: Props) {
     setSaving(true);
     try {
       await updateVideoDetails(db, video.id, result.data.name, result.data.description);
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: videoKeys.detail(video.id) }),
-        queryClient.invalidateQueries({ queryKey: videoKeys.all }),
-      ]);
+      const updatedVideo = { ...video, title: result.data.name, description: result.data.description };
+      queryClient.setQueryData(videoKeys.detail(video.id), updatedVideo);
+      queryClient.setQueryData<InfiniteData<Awaited<ReturnType<typeof listVideos>>>>(
+        videoKeys.list,
+        (current) => current && {
+          ...current,
+          pages: current.pages.map((page) => ({
+            ...page,
+            videos: page.videos.map((item) => item.id === video.id ? updatedVideo : item),
+          })),
+        },
+      );
       animateOut();
       showToast("Video details saved");
     } catch {
@@ -116,11 +124,11 @@ export function EditVideoModal({ video, onClose }: Props) {
               <MetadataForm
                 heading="Edit details"
                 helperText="Update the name and description for this video."
-                thumbnailSource={video.thumbnail_file_name
-                  ? { uri: thumbnailFile(video.thumbnail_file_name).uri }
+                thumbnailSource={video.thumbnailFileName
+                  ? { uri: thumbnailFile(video.thumbnailFileName).uri }
                   : undefined}
-                timeRange={`${formatTime(video.start_seconds)} – ${formatTime(video.start_seconds + video.duration_seconds)}`}
-                clipDescription={`Saved ${formatTime(video.duration_seconds)} clip`}
+                timeRange={`${formatTime(video.startSeconds)} – ${formatTime(video.startSeconds + video.durationSeconds)}`}
+                clipDescription={`Saved ${formatTime(video.durationSeconds)} clip`}
                 name={title}
                 onChangeName={setTitle}
                 description={description}

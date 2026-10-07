@@ -1,17 +1,18 @@
 import { Text, View } from "react-native";
 
 type HomeListHeaderProps = {
-  totalVideos: number;
-  totalSeconds: number;
+  totalVideos?: number;
+  totalSeconds?: number;
+  statsError?: boolean;
 };
 
-export function HomeListHeader({ totalVideos, totalSeconds }: HomeListHeaderProps) {
+export function HomeListHeader({ totalVideos, totalSeconds, statsError }: HomeListHeaderProps) {
   return (
     <View className="pb-[10px] pt-[28px]">
       <Text className="font-sans-bold text-display tracking-[-0.8px] text-ink">Video Diary</Text>
       <Text className="mt-[3px] font-sans text-secondary text-muted">
-        {totalVideos === 0
-          ? "Your cropped clips will live here"
+        {totalVideos === undefined || totalSeconds === undefined
+          ? statsError ? "Library totals unavailable" : "Loading library totals…"
           : `${totalVideos} ${totalVideos === 1 ? "video" : "videos"}, ${totalSeconds} ${totalSeconds === 1 ? "second" : "seconds"} in all`}
       </Text>
     </View>

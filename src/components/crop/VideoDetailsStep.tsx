@@ -1,14 +1,14 @@
 import type { VideoThumbnail } from "expo-video";
 import { MetadataForm } from "@/components/MetadataForm";
 import { useCropStore } from "@/stores/crop.store";
-import { thumbnailFile } from "@/lib/file-system";
+import { thumbnailFile } from "@/lib/fileSystem";
 import { formatTime } from "@/lib/formatTime";
 
-type Props = {
-  frames: VideoThumbnail[];
+type VideoDetailsStepProps = {
+  frames: (VideoThumbnail | null)[];
 };
 
-export function VideoDetailsStep({ frames }: Props) {
+export function VideoDetailsStep({ frames }: VideoDetailsStepProps) {
   const selected = useCropStore((state) => state.selected);
   const start = useCropStore((state) => state.start);
   const name = useCropStore((state) => state.name);
@@ -19,21 +19,39 @@ export function VideoDetailsStep({ frames }: Props) {
   const setDescription = useCropStore((state) => state.setDescription);
 
   if (!selected) return null;
-  const poster = frames[Math.min(frames.length - 1, Math.floor((start / selected.duration) * frames.length))] ?? null;
-  return <MetadataForm
-    heading="Add details"
-    helperText="Give your video a name so you can find it later."
-    thumbnailSource={thumbnailFileName ? { uri: thumbnailFile(thumbnailFileName).uri } : poster}
-    timeRange={`${formatTime(start)} – ${formatTime(start + 5)}`}
-    clipDescription={`5-second moment from a ${formatTime(selected.duration)} video`}
-    name={name}
-    onChangeName={setName}
-    description={description}
-    onChangeDescription={setDescription}
-    thumbnailFeedback={thumbnailStatus === "loading"
-      ? { message: "Preparing thumbnail…" }
-      : thumbnailStatus === "error"
-        ? { message: "Couldn’t prepare the thumbnail. Go back and choose the video again.", isError: true }
-        : undefined}
-  />;
+  const poster =
+    frames[
+      Math.min(
+        frames.length - 1,
+        Math.floor((start / selected.duration) * frames.length),
+      )
+    ] ?? null;
+  return (
+    <MetadataForm
+      heading="Add details"
+      helperText="Give your video a name so you can find it later."
+      thumbnailSource={
+        thumbnailFileName
+          ? { uri: thumbnailFile(thumbnailFileName).uri }
+          : poster
+      }
+      timeRange={`${formatTime(start)} – ${formatTime(start + 5)}`}
+      clipDescription={`5-second moment from a ${formatTime(selected.duration)} video`}
+      name={name}
+      onChangeName={setName}
+      description={description}
+      onChangeDescription={setDescription}
+      thumbnailFeedback={
+        thumbnailStatus === "loading"
+          ? { message: "Preparing thumbnail…" }
+          : thumbnailStatus === "error"
+            ? {
+                message:
+                  "Couldn’t prepare the thumbnail. Tap Retry thumbnail to try again.",
+                isError: true,
+              }
+            : undefined
+      }
+    />
+  );
 }

@@ -4,12 +4,12 @@ import { useCropStore } from "@/stores/crop.store";
 import { EmptyVideoSelection } from "@/components/crop/EmptyVideoSelection";
 import { SelectedVideoSelection } from "@/components/crop/SelectedVideoSelection";
 
-type Props = {
+type VideoSelectionStepProps = {
   player: ExpoVideoPlayer;
   onBrowse: () => void;
 };
 
-export function VideoSelectionStep({ player, onBrowse }: Props) {
+export function VideoSelectionStep({ player, onBrowse }: VideoSelectionStepProps) {
   const selected = useCropStore((state) => state.selected);
 
   return (

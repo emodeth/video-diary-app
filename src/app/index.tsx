@@ -1,8 +1,8 @@
 import { router } from "expo-router";
 import { Plus } from "lucide-react-native";
-import { FlatList } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useVideos } from "@/hooks";
+import { useVideos, useVideoStats } from "@/hooks";
 import { useCropStore } from "@/stores/crop.store";
 import { Button } from "@/components/ui/Button";
 import colors from "@/theme/colors.json";
@@ -12,10 +12,14 @@ import { ItemSeparator } from "@/components/home/ItemSeparator";
 import { HomeState } from "@/components/home/HomeState";
 import { VideoListSkeleton } from "@/components/home/VideoListSkeleton";
 import { VideoRow } from "@/components/home/VideoRow";
-import { getTotalSeconds } from "@/lib/video-stats";
 
 export default function Home() {
-  const { data: videos = [], isPending, isError, refetch } = useVideos();
+  const {
+    data, isPending, isError, isFetchNextPageError, isFetchingNextPage,
+    hasNextPage, fetchNextPage, refetch,
+  } = useVideos();
+  const { data: stats, isError: statsError } = useVideoStats();
+  const videos = data?.pages.flatMap((page) => page.videos) ?? [];
 
   if (isPending) {
     return (
@@ -55,10 +59,23 @@ export default function Home() {
         ItemSeparatorComponent={ItemSeparator}
         showsVerticalScrollIndicator={false}
         contentContainerClassName="flex-grow px-7 pb-24"
+        onEndReachedThreshold={0.5}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage && !isFetchNextPageError) void fetchNextPage();
+        }}
+        ListFooterComponent={
+          isFetchNextPageError ? (
+            <Button label="Couldn’t load more videos. Tap to retry." variant="ghost"
+              onPress={() => { void fetchNextPage(); }} className="my-4 self-center" />
+          ) : isFetchingNextPage ? (
+            <View className="items-center py-5"><ActivityIndicator color={colors.brand.DEFAULT} /></View>
+          ) : null
+        }
         ListHeaderComponent={
           <HomeListHeader
-            totalVideos={videos.length}
-            totalSeconds={getTotalSeconds(videos)}
+            totalVideos={stats?.totalVideos}
+            totalSeconds={stats?.totalSeconds}
+            statsError={statsError}
           />
         }
       />

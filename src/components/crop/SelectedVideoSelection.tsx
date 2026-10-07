@@ -1,18 +1,19 @@
-import { Pressable, Text, View, useWindowDimensions } from "react-native";
+import { Text, View, useWindowDimensions } from "react-native";
 import type { VideoPlayer as ExpoVideoPlayer } from "expo-video";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { VideoSource } from "@/types/crop";
 import { formatTime } from "@/lib/formatTime";
 import { getPreviewSize } from "@/lib/getPreviewSize";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import { Button } from "@/components/ui/Button";
 
-type Props = {
+type SelectedVideoSelectionProps = {
   selected: VideoSource;
   player: ExpoVideoPlayer;
   onBrowse: () => void;
 };
 
-export function SelectedVideoSelection({ selected, player, onBrowse }: Props) {
+export function SelectedVideoSelection({ selected, player, onBrowse }: SelectedVideoSelectionProps) {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const { previewWidth, cardHeight } = getPreviewSize(
@@ -31,10 +32,13 @@ export function SelectedVideoSelection({ selected, player, onBrowse }: Props) {
         <Text className="flex-1 font-sans-bold text-title tracking-[-0.7px] text-ink" numberOfLines={1}>
           {selected.title}
         </Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Change video" onPress={onBrowse}
-          className="min-h-10 justify-center px-1">
-          <Text className="font-sans-semibold text-body text-brand">Change</Text>
-        </Pressable>
+        <Button
+          label="Change"
+          accessibilityLabel="Change video"
+          variant="ghost"
+          size="text"
+          onPress={onBrowse}
+        />
       </View>
       <Text className="font-sans text-secondary text-muted tabular-nums">
         {formatTime(selected.duration)}

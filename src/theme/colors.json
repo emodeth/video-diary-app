@@ -3,7 +3,15 @@
   "ink": "#101828",
   "muted": "#667085",
   "line": "#EAECF0",
+  "line-subtle": "#F2F3F6",
+  "line-control": "#E5E9F0",
+  "line-selection": "#BCC9DF",
   "surface": "#FFFFFF",
+  "surface-pressed": "#F4F6FA",
+  "track": "#E7E4EF",
+  "track-selection": "#AAB9ED",
+  "handle": "#E6E9EF",
+  "step-inactive": "#E8EBF0",
   "danger": { "DEFAULT": "#D92D20", "soft": "#FEF3F2" },
   "onBrand": "#FFFFFF"
 }

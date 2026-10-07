@@ -1,27 +1,24 @@
-import { Pressable, Text, View, useWindowDimensions } from "react-native";
+import { Text, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type {
   VideoPlayer as ExpoVideoPlayer,
   VideoThumbnail,
 } from "expo-video";
 import { CLIP_LENGTH } from "@/constants";
-import { useClipPreview } from "@/hooks/useClipPreview";
+import { useClipPreview } from "@/hooks/crop";
 import { useCropStore } from "@/stores/crop.store";
 import { getPreviewSize } from "@/lib/getPreviewSize";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { VideoTimeline } from "@/components/crop/VideoTimeline";
+import { Button } from "@/components/ui/Button";
 
-type Props = {
+type VideoRangeStepProps = {
   player: ExpoVideoPlayer;
-  frames: VideoThumbnail[];
+  frames: (VideoThumbnail | null)[];
   framesFailed: boolean;
 };
 
-export function VideoRangeStep({
-  player,
-  frames,
-  framesFailed,
-}: Props) {
+export function VideoRangeStep({ player, frames, framesFailed }: VideoRangeStepProps) {
   const selected = useCropStore((state) => state.selected);
   const start = useCropStore((state) => state.start);
   const setStart = useCropStore((state) => state.setStart);
@@ -33,7 +30,10 @@ export function VideoRangeStep({
     insets.top,
     insets.bottom,
   );
-  const maxStart = Math.max(0, (selected?.duration ?? CLIP_LENGTH) - CLIP_LENGTH);
+  const maxStart = Math.max(
+    0,
+    (selected?.duration ?? CLIP_LENGTH) - CLIP_LENGTH,
+  );
   const preview = useClipPreview({
     player,
     start,
@@ -57,7 +57,7 @@ export function VideoRangeStep({
       </View>
       <VideoTimeline
         frames={frames}
-        framesLoading={frames.length === 0 && !framesFailed}
+        framesLoading={!frames.some(Boolean) && !framesFailed}
         duration={selected.duration}
         start={start}
         clipLength={CLIP_LENGTH}
@@ -68,26 +68,34 @@ export function VideoRangeStep({
         onPause={preview.pause}
       />
       <View className="mt-4 flex-row gap-3">
-        <Pressable
-          accessibilityRole="button"
+        <Button
+          label="− 1 sec"
+          variant="ghost"
+          fullWidth
           accessibilityLabel="Move clip back one second"
           disabled={start <= 0}
           onPress={() => preview.nudgeStart(-1)}
-          className="h-[52px] flex-1 items-center justify-center rounded-[13px] border border-[#E5E9F0] active:bg-[#F4F6FA]"
-          style={{ opacity: start <= 0 ? 0.45 : 1 }}
+          className="flex-1"
+          contentClassName="rounded-[13px] border border-line-control"
         >
-          <Text className="font-sans-semibold text-button text-ink">− 1 sec</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
+          <Text className="font-sans-semibold text-button text-ink">
+            − 1 sec
+          </Text>
+        </Button>
+        <Button
+          label="+ 1 sec"
+          variant="ghost"
+          fullWidth
           accessibilityLabel="Move clip forward one second"
           disabled={start >= maxStart}
           onPress={() => preview.nudgeStart(1)}
-          className="h-[52px] flex-1 items-center justify-center rounded-[13px] border border-[#E5E9F0] active:bg-[#F4F6FA]"
-          style={{ opacity: start >= maxStart ? 0.45 : 1 }}
+          className="flex-1"
+          contentClassName="rounded-[13px] border border-line-control"
         >
-          <Text className="font-sans-semibold text-button text-ink">+ 1 sec</Text>
-        </Pressable>
+          <Text className="font-sans-semibold text-button text-ink">
+            + 1 sec
+          </Text>
+        </Button>
       </View>
       <Text className="mt-3 font-sans text-hint text-muted">
         Drag the frame, tap the timeline, or nudge by a second.

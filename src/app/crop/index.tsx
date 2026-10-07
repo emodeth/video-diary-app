@@ -1,25 +1,32 @@
-import { useEffect, useRef, useState } from "react";
 import { useEvent } from "expo";
-import { useVideoPlayer, type VideoThumbnail } from "expo-video";
+import { useVideoPlayer } from "expo-video";
 import { router } from "expo-router";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View, useWindowDimensions } from "react-native";
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
+import { useEffect } from "react";
+import {
+  KeyboardAvoidingView,
+  BackHandler,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ToastViewport, useToast } from "@/components/ui/Toast";
-import { useCreateVideo } from "@/hooks";
-import { deleteThumbnailFile } from "@/lib/file-system";
-import { videoMetadataSchema } from "@/schemas/video-metadata.schema";
-import { createVideoThumbnail } from "@/lib/video-thumbnail";
-import type { VideoSource } from "@/types/crop";
+import { ToastViewport } from "@/components/ui/Toast";
 import { VideoDetailsStep } from "@/components/crop/VideoDetailsStep";
 import { VideoRangeStep } from "@/components/crop/VideoRangeStep";
 import { CropFooter } from "@/components/crop/CropFooter";
 import { CropHeader } from "@/components/crop/CropHeader";
 import { VideoSelectionStep } from "@/components/crop/VideoSelectionStep";
 import { useCropStore } from "@/stores/crop.store";
-import { pickVideo } from "@/lib/pickVideo";
-import { stopVideoPreview } from "@/lib/stop-video-preview";
+import { useTimelineFrames, useCropThumbnail, useSheetAnimation, useCropPicker, useSaveVideo, useCropNavigation } from "@/hooks/crop";
+import {
+  CONTENT_HORIZONTAL_PADDING,
+  SHEET_HEIGHT_RATIO,
+  SHEET_MAX_WIDTH,
+} from "@/constants";
+import colors from "@/theme/colors.json";
 
 function dismissCrop() {
   useCropStore.getState().reset();
@@ -29,250 +36,112 @@ function dismissCrop() {
 export default function CropScreen() {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const showToast = useToast();
-  const { mutateAsync: createVideo, isPending: saving } = useCreateVideo();
   const step = useCropStore((state) => state.step);
   const selected = useCropStore((state) => state.selected);
   const thumbnailStatus = useCropStore((state) => state.thumbnailStatus);
-  const selectionVersion = useCropStore((state) => state.selectionVersion);
-  const nextStep = useCropStore((state) => state.nextStep);
-  const previousStep = useCropStore((state) => state.previousStep);
-  const selectSource = useCropStore((state) => state.selectSource);
-  const reset = useCropStore((state) => state.reset);
-  const finishInFlight = useRef(false);
-  const [sessionVersion] = useState(() => useCropStore.getState().sessionVersion);
-  const mounted = useRef(false);
-  const pickerInFlight = useRef(false);
-  const pickerReturnedAt = useRef(0);
-  const dismissing = useRef(false);
   const player = useVideoPlayer(selected?.id ?? null);
-  const { status } = useEvent(player, "statusChange", { status: player.status });
-  const [frames, setFrames] = useState<{ uri: string; items: VideoThumbnail[] } | null>(null);
-  const [framesFailed, setFramesFailed] = useState(false);
-  const needsTimelineFrames = step >= 2;
-  const progress = useSharedValue(0);
+  const { status } = useEvent(player, "statusChange", {
+    status: player.status,
+  });
+  const { frames, failed: framesFailed } = useTimelineFrames(
+    player,
+    selected,
+    (status === "readyToPlay" || player.status === "readyToPlay") &&
+      (thumbnailStatus === "ready" || thumbnailStatus === "error"),
+  );
+  useCropThumbnail(player, selected, status);
+  const { sheetAnimation, backdropAnimation, dismiss, isDismissing } =
+    useSheetAnimation(height, dismissCrop);
+  const { finish, saving, isBusy } = useSaveVideo({ onSaved: dismiss, isDismissing });
+  const { browse, blocksClose } = useCropPicker(player, isDismissing, isBusy);
+  const { close, back, next } = useCropNavigation({
+    player,
+    sheet: { dismiss, isDismissing },
+    blocksClose,
+    isBusy,
+  });
 
   useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-      if (dismissing.current) return;
-      if (useCropStore.getState().sessionVersion !== sessionVersion) return;
-      if (Platform.OS === "android" && Date.now() - pickerReturnedAt.current < 2000) {
-        // The Android picker can remove a transparent modal as it returns.
-        // Restore the sheet with the selection that was just made.
-        setTimeout(() => router.push("/crop"), 0);
-      } else if (!pickerInFlight.current) {
-        reset();
-      }
-    };
-  }, [reset, sessionVersion]);
-
-  useEffect(() => {
-    if (!selected || thumbnailStatus !== "loading") return;
-    if (status === "error") {
-      useCropStore.getState().setThumbnailError(selectionVersion);
-      return;
-    }
-    if (status !== "readyToPlay") return;
-    let cancelled = false;
-
-    void createVideoThumbnail(player)
-      .then((fileName) => {
-        if (cancelled || !useCropStore.getState().setThumbnail(selectionVersion, fileName)) {
-          deleteThumbnailFile(fileName);
-        }
-      })
-      .catch(() => useCropStore.getState().setThumbnailError(selectionVersion));
-
-    return () => { cancelled = true; };
-  }, [player, selected, selectionVersion, status, thumbnailStatus]);
-
-  useEffect(() => {
-    if (!needsTimelineFrames || !selected || status !== "readyToPlay" || thumbnailStatus === "loading" || Platform.OS === "web") return;
-    let cancelled = false;
-    const uri = selected.id;
-    const count = 8;
-    const times = Array.from({ length: count }, (_, index) =>
-      Math.min(selected.duration - 0.01, (selected.duration * (index + 0.5)) / count));
-
-    async function loadFrames() {
-      const options = { maxWidth: 90, maxHeight: 160 };
-      try {
-        const items = await player.generateThumbnailsAsync(times, options);
-        if (items.length !== count) throw new Error("Incomplete video thumbnails");
-        if (!cancelled) setFrames({ uri, items });
-      } catch {
-        // A single bad frame can reject the batch. Keep the frames that do render.
-        const partial: (VideoThumbnail | null)[] = [];
-        for (const time of times) {
-          if (cancelled) return;
-          try {
-            partial.push((await player.generateThumbnailsAsync([time], options))[0] ?? null);
-          } catch {
-            partial.push(null);
-          }
-          const first = partial.find((item): item is VideoThumbnail => item !== null);
-          if (first && !cancelled) {
-            setFrames({ uri, items: times.map((_, index) => partial[index] ?? first) });
-          }
-        }
-        const available = partial.flatMap((item, index) => item ? [{ item, index }] : []);
-        if (cancelled) return;
-        if (available.length === 0) {
-          setFramesFailed(true);
-          return;
-        }
-        setFrames({
-          uri,
-          items: partial.map((item, index) => item ?? available.reduce((closest, candidate) =>
-            Math.abs(candidate.index - index) < Math.abs(closest.index - index) ? candidate : closest).item),
-        });
-      }
-    }
-
-    void loadFrames();
-    return () => { cancelled = true; };
-  }, [player, selected, status, needsTimelineFrames, thumbnailStatus]);
-
-  useEffect(() => {
-    progress.value = withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) });
-  }, [progress]);
-
-  const sheetAnimation = useAnimatedStyle(() => ({
-    transform: [{ translateY: (1 - progress.value) * height }],
-  }));
-  const backdropAnimation = useAnimatedStyle(() => ({ opacity: progress.value * 0.35 }));
-
-  function dismiss() {
-    dismissing.current = true;
-    // Reanimated shared values are intentionally mutable outside React render.
-    // eslint-disable-next-line react-hooks/immutability
-    progress.value = withTiming(0, { duration: 220, easing: Easing.in(Easing.cubic) }, (finished) => {
-      if (finished) scheduleOnRN(dismissCrop);
+    const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+      close();
+      return true;
     });
-  }
+    return () => subscription.remove();
+  }, [close]);
 
-  function close() {
-    // Ignore a picker tap that lands on the backdrop as Android restores this screen.
-    if (pickerInFlight.current || Date.now() - pickerReturnedAt.current < 600) return;
-    if (!saving && !finishInFlight.current) {
-      player.pause();
-      dismiss();
-    }
-  }
-
-  function leaveRangeStep() {
-    if (step === 2) stopVideoPreview(player);
-    else player.pause();
-  }
-
-  function back() {
-    if (saving || finishInFlight.current) return;
-    if (step === 1) close();
-    else {
-      leaveRangeStep();
-      previousStep();
-    }
-  }
-
-  function next() {
-    leaveRangeStep();
-    nextStep();
-  }
-
-  function chooseSource(source: VideoSource) {
-    player.pause();
-    selectSource(source);
-    setFrames(null);
-    setFramesFailed(false);
-  }
-
-  async function browse() {
-    if (pickerInFlight.current) return;
-    pickerInFlight.current = true;
-    try {
-      const source = await pickVideo();
-      if (useCropStore.getState().sessionVersion !== sessionVersion) return;
-      if (source) {
-        pickerReturnedAt.current = Date.now();
-        if (mounted.current) {
-          chooseSource(source);
-        } else {
-          useCropStore.getState().selectSource(source);
-          router.push("/crop");
-        }
-      }
-    } catch (error) {
-      if (!mounted.current) return;
-      const reason = error instanceof Error ? error.message : "";
-      if (reason === "permission") {
-        showToast("Allow library access to choose a video", "error");
-      } else if (reason === "tooShort") {
-        showToast("Choose a video at least 5 seconds long", "error");
-      } else {
-        showToast("Couldn’t open library. Please try again", "error");
-      }
-    } finally {
-      pickerInFlight.current = false;
-      if (!mounted.current && pickerReturnedAt.current === 0 &&
-        useCropStore.getState().sessionVersion === sessionVersion) reset();
-    }
-  }
-
-  async function finish() {
-    const { selected, start, name, description, thumbnailFileName, thumbnailStatus } = useCropStore.getState();
-    const metadata = videoMetadataSchema.safeParse({ name, description });
-    if (saving || finishInFlight.current || !selected || !metadata.success || !thumbnailFileName || thumbnailStatus !== "ready") return;
-    finishInFlight.current = true;
-    try {
-      await createVideo({
-        sourceUri: selected.id,
-        thumbnailFileName,
-        startSeconds: start,
-        title: metadata.data.name,
-        description: metadata.data.description,
-      });
-      useCropStore.getState().markThumbnailSaved();
-      dismiss();
-      showToast("Video saved to your diary");
-    } catch {
-      showToast("Couldn’t save video. Please try again", "error");
-    } finally {
-      finishInFlight.current = false;
-    }
-  }
+  const isEmptyPicker = step === 1 && !selected;
+  const currentFrames =
+    selected && frames?.uri === selected.id ? frames.items : [];
 
   return (
     <View className="flex-1 justify-end">
-      <Animated.View pointerEvents="none" className="absolute inset-0"
-        style={[{ backgroundColor: "#101828" }, backdropAnimation]} />
-      <Pressable className="absolute inset-0" onPress={close} accessibilityLabel="Close crop sheet" />
+      <Animated.View
+        pointerEvents="none"
+        className="absolute inset-0"
+        style={[{ backgroundColor: colors.ink }, backdropAnimation]}
+      />
+      <Pressable
+        className="absolute inset-0"
+        onPress={close}
+        accessibilityRole="button"
+        accessibilityLabel="Close crop sheet"
+      />
       <Animated.View
         style={[
-          { width: "100%", maxWidth: 620, alignSelf: "center", height: Math.min(height * 0.91, height - insets.top - 12) },
+          {
+            width: "100%",
+            maxWidth: SHEET_MAX_WIDTH,
+            alignSelf: "center",
+            height: Math.min(
+              height * SHEET_HEIGHT_RATIO,
+              height - insets.top - 12,
+            ),
+          },
           sheetAnimation,
         ]}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1"
+        >
           <View className="flex-1 overflow-hidden rounded-t-[28px] bg-white">
             <CropHeader onBack={back} onClose={close} />
-            <ScrollView key={step} className="flex-1"
+            <ScrollView
+              key={step}
+              className="flex-1"
               contentContainerStyle={{
-                flexGrow: step === 1 && !selected ? 1 : undefined,
-                paddingHorizontal: 27,
+                flexGrow: isEmptyPicker ? 1 : undefined,
+                paddingHorizontal: CONTENT_HORIZONTAL_PADDING,
                 paddingTop: 9,
                 paddingBottom: step === 2 ? 12 : 28,
               }}
-              keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-              <View style={step === 1 && !selected ? { flexGrow: 1 } : undefined}>
-                {step === 1 && <VideoSelectionStep player={player} onBrowse={browse} />}
-                {step === 2 && selected && <VideoRangeStep player={player} frames={frames?.uri === selected.id ? frames.items : []}
-                  framesFailed={framesFailed || Platform.OS === "web"} />}
-                {step === 3 && selected && <VideoDetailsStep frames={frames?.uri === selected.id ? frames.items : []} />}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={isEmptyPicker ? { flexGrow: 1 } : undefined}>
+                {step === 1 && (
+                  <VideoSelectionStep player={player} onBrowse={browse} />
+                )}
+                {step === 2 && selected && (
+                  <VideoRangeStep
+                    player={player}
+                    frames={currentFrames}
+                    framesFailed={framesFailed || Platform.OS === "web"}
+                  />
+                )}
+                {step === 3 && selected && (
+                  <VideoDetailsStep frames={currentFrames} />
+                )}
               </View>
             </ScrollView>
-            <CropFooter bottomInset={insets.bottom} saving={saving} onBack={back} onNext={next} onFinish={finish} />
+            <CropFooter
+              bottomInset={insets.bottom}
+              saving={saving}
+              onBack={back}
+              onNext={next}
+              onFinish={finish}
+              onRetryThumbnail={() => useCropStore.getState().retryThumbnail()}
+            />
           </View>
         </KeyboardAvoidingView>
       </Animated.View>
