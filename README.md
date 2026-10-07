@@ -4,18 +4,18 @@ A mobile app for saving five-second moments from videos on your device. Pick a v
 
 ## Tech stack
 
-| Technology | Role |
-| --- | --- |
-| Expo SDK 57 | App platform and native modules |
-| React Native | Mobile UI |
-| TypeScript | Type safety |
-| Expo Router | Navigation |
-| Zustand | Temporary crop flow state |
-| TanStack Query | Data fetching and mutations |
-| NativeWind | Styling |
-| Expo SQLite | Local video metadata storage |
-| expo-trim-video | Five-second video cropping |
-| Zod | Metadata validation |
+| Category | Technology | Role |
+| --- | --- | --- |
+| Core | Expo SDK 57 | React Native app framework |
+| Core | Expo Router | App navigation |
+| Core | Zustand | State management |
+| Core | TanStack Query | Async logic and video cropping mutations |
+| Core | expo-trim-video | Video processing and cropping |
+| Core | NativeWind | Styling |
+| Core | expo-video | Video rendering and playback |
+| Bonus | Expo SQLite | Structured, persistent storage |
+| Bonus | React Native Reanimated | Animations |
+| Bonus | Zod | Form validation schemas |
 
 ## Screenshots
 
