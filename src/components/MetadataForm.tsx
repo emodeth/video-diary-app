@@ -5,8 +5,9 @@ import { useController, useForm } from "react-hook-form";
 import { Keyboard, ScrollView, Text, TextInput, View } from "react-native";
 import { CONTENT_HORIZONTAL_PADDING, DESCRIPTION_MAX, NAME_MAX } from "@/constants";
 import { videoMetadataSchema, type VideoMetadata } from "@/schemas/videoMetadata.schema";
+import colors from "@/theme/colors.json";
 
-type Props = {
+type MetadataFormProps = {
   heading: string;
   helperText: string;
   thumbnailSource?: ImageProps["source"];
@@ -30,7 +31,7 @@ export function MetadataForm({
   description,
   onChangeDescription,
   thumbnailFeedback,
-}: Props) {
+}: MetadataFormProps) {
   const scrollRef = useRef<ScrollView>(null);
   const descriptionFocused = useRef(false);
   const { control, getValues, setValue } = useForm<VideoMetadata>({
@@ -61,8 +62,8 @@ export function MetadataForm({
       contentContainerStyle={{ paddingHorizontal: CONTENT_HORIZONTAL_PADDING, paddingTop: 9, paddingBottom: 28 }}>
       <Text className="font-sans-bold text-title tracking-[-0.7px] text-ink">{heading}</Text>
       <Text className="mt-[5px] font-sans text-lead text-muted">{helperText}</Text>
-      <View className="mt-[23px] flex-row items-center gap-[15px] border-b border-[#E7EAF0] pb-[22px]">
-        <View className="h-[61px] w-[81px] overflow-hidden rounded-[12px] bg-black">
+      <View className="mt-[23px] flex-row items-center gap-[15px] border-b border-lineForm pb-[22px]">
+        <View className="h-[61px] w-[81px] overflow-hidden rounded-[12px] bg-videoBackground">
           {thumbnailSource && <Image source={thumbnailSource} contentFit="contain" style={{ width: "100%", height: "100%" }} />}
         </View>
         <View className="flex-1">
@@ -85,8 +86,8 @@ export function MetadataForm({
         nameField.onChange(value);
         onChangeName(value);
       }} onFocus={() => { descriptionFocused.current = false; }} onBlur={nameField.onBlur} maxLength={NAME_MAX}
-        placeholder="e.g. Ferry ride at sunrise" placeholderTextColor="#98A2B3"
-        className={`mt-[8px] h-[55px] rounded-[14px] border px-[16px] font-sans text-body text-ink ${nameError ? "border-danger" : "border-[#E5E9F0]"}`}
+        placeholder="e.g. Ferry ride at sunrise" placeholderTextColor={colors.placeholder}
+        className={`mt-[8px] h-[55px] rounded-[14px] border px-[16px] font-sans text-body text-ink ${nameError ? "border-danger" : "border-line-control"}`}
         accessibilityLabel="Video name" />
       {nameError && <Text accessibilityLiveRegion="polite" className="mt-2 font-sans text-hint text-danger">{nameError}</Text>}
       <View className="mt-[48px] flex-row justify-between">
@@ -101,8 +102,8 @@ export function MetadataForm({
         scrollRef.current?.scrollToEnd({ animated: true });
       }} onBlur={descriptionField.onBlur} maxLength={DESCRIPTION_MAX}
         multiline textAlignVertical="top" placeholder="What makes this moment worth keeping?"
-        placeholderTextColor="#98A2B3"
-        className={`mt-[8px] min-h-[130px] rounded-[14px] border px-[16px] py-[15px] font-sans text-body text-ink ${descriptionError ? "border-danger" : "border-[#E5E9F0]"}`}
+        placeholderTextColor={colors.placeholder}
+        className={`mt-[8px] min-h-[130px] rounded-[14px] border px-[16px] py-[15px] font-sans text-body text-ink ${descriptionError ? "border-danger" : "border-line-control"}`}
         accessibilityLabel="Video description" />
       {descriptionError && <Text accessibilityLiveRegion="polite" className="mt-2 font-sans text-hint text-danger">{descriptionError}</Text>}
     </ScrollView>

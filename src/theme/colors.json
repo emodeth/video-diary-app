@@ -5,6 +5,7 @@
   "line": "#EAECF0",
   "line-subtle": "#F2F3F6",
   "line-control": "#E5E9F0",
+  "lineForm": "#E7EAF0",
   "line-selection": "#BCC9DF",
   "surface": "#FFFFFF",
   "surface-pressed": "#F4F6FA",
@@ -12,6 +13,10 @@
   "track-selection": "#AAB9ED",
   "handle": "#E6E9EF",
   "step-inactive": "#E8EBF0",
+  "placeholder": "#98A2B3",
+  "previewSkeleton": "#ECEEF1",
+  "videoBackground": "#000000",
   "danger": { "DEFAULT": "#D92D20", "soft": "#FEF3F2" },
-  "onBrand": "#FFFFFF"
+  "onBrand": "#FFFFFF",
+  "toastErrorIcon": "#FDA29B"
 }

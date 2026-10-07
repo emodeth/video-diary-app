@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getPreviewSize } from "@/lib/getPreviewSize";
+import { getPreviewSize } from "@/lib/videoUtils";
 import colors from "@/theme/colors.json";
 import { DeleteVideoDialog } from "@/components/videos/DeleteVideoDialog";
 import { EditVideoModal } from "@/components/videos/EditVideoModal";

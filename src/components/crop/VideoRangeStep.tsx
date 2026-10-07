@@ -7,7 +7,7 @@ import type {
 import { CLIP_LENGTH } from "@/constants";
 import { useClipPreview } from "@/hooks/crop";
 import { useCropStore } from "@/stores/crop.store";
-import { getPreviewSize } from "@/lib/getPreviewSize";
+import { getPreviewSize } from "@/lib/videoUtils";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { VideoTimeline } from "@/components/crop/VideoTimeline";
 import { Button } from "@/components/ui/Button";

@@ -3,7 +3,11 @@ import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HomeListHeader } from "@/components/home/HomeListHeader";
 
-export function HomeState({ children }: { children: ReactNode }) {
+type HomeStateProps = {
+  children: ReactNode;
+};
+
+export function HomeState({ children }: HomeStateProps) {
   return (
     <SafeAreaView className="flex-1 bg-surface" edges={["top", "bottom"]}>
       <View className="flex-1 px-7">

@@ -12,10 +12,11 @@ export type CreateVideoInput = {
 };
 
 export async function createVideo(db: SQLiteDatabase, input: CreateVideoInput) {
+  const clipDurationSeconds = 5;
   const { uri } = await trimVideo({
     uri: input.sourceUri,
     start: input.startSeconds,
-    end: input.startSeconds + 5,
+    end: input.startSeconds + clipDurationSeconds,
   });
   const fileName = await storeTrimmedVideo(uri);
 
@@ -25,9 +26,8 @@ export async function createVideo(db: SQLiteDatabase, input: CreateVideoInput) {
       description: input.description.trim(),
       fileName,
       thumbnailFileName: input.thumbnailFileName,
-      durationSeconds: 5,
+      durationSeconds: Math.round(clipDurationSeconds),
       startSeconds: input.startSeconds,
-      createdAt: new Date().toISOString(),
     });
   } catch (error) {
     try {

@@ -18,15 +18,17 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ],
       "package": "com.emodeth.videodiaryapp"
     },
     "plugins": [
       "expo-router",
       "expo-status-bar",
-      "expo-image-picker",
+      [
+        "expo-image-picker",
+        {
+          "microphonePermission": false
+        }
+      ],
       "expo-font",
       "expo-image"
     ],
