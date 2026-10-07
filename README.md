@@ -2,7 +2,7 @@
 
 A mobile app for saving five-second moments from videos on your device. Pick a video, choose where the clip starts, add a name and description, and keep the cropped clip in a local diary. You can play saved clips, edit their details, and delete them.
 
-Built with Expo SDK 57, React Native, TypeScript, and Expo Router.
+**Tech stack:** Expo SDK 57 · React Native · TypeScript · Expo Router · Zustand · TanStack Query · NativeWind · Expo SQLite · Zod
 
 ## Screenshots
 
@@ -26,13 +26,19 @@ The screenshots below follow the app flow in order.
   </tr>
 </table>
 
+### Demo video
+
+[Watch the app demo (MP4)](docs/demo/video-diary-demo.mp4)
+
 ## Setup
+
+> **Full video cropping requires a development build.** `expo-trim-video` is not available in Expo Go. Use the `feature/expo-go` branch only to explore the screens without exporting a cropped clip.
 
 ### Requirements
 
 - Node.js 22.13 or newer and npm
 - An Android device or emulator, or an iOS device or simulator on macOS
-- A native development build of this app. Video trimming uses native code, so Expo Go cannot run the complete app.
+- A native development build of this app for the complete cropping flow
 
 ### Install and run
 
@@ -51,7 +57,7 @@ Open the installed development app on the device. Rebuild it after adding or cha
 
 ### Expo Go branch
 
-I also created `feature/expo-go` to let reviewers explore the app in Expo Go. It keeps the same main screens and the five-second selection preview, but **it does not export a cropped clip**. `expo-trim-video` needs native code that Expo Go does not include, so this branch saves the full source video instead. Use `main` and a development build to test actual five-second cropping. The Expo Go branch uses Expo SDK 54, so use an Expo Go app version compatible with that SDK.
+The `feature/expo-go` branch lets reviewers explore the same main screens and five-second selection preview in Expo Go. It saves the full source video because `expo-trim-video` requires native code outside Expo Go. Use `main` with a development build to test actual cropping. This branch uses Expo SDK 54, so it needs a compatible Expo Go version.
 
 ```bash
 git switch feature/expo-go
@@ -74,29 +80,32 @@ Names are required and limited to 40 characters; descriptions are limited to 200
 ## How it works
 
 - **Video processing:** `expo-image-picker` selects the source, `expo-video` previews and plays it, and `expo-trim-video` exports the selected five-second range. The cropped video and thumbnail are stored in the app's document directory with `expo-file-system`.
-- **SQLite persistence:** I used `expo-sqlite` rather than keeping the diary only in memory. It stores each clip's name, description, file names, duration, start time, and creation date in `video-diary.db`, so the list survives app restarts. A versioned migration creates the table and index. The home screen reads clips in pages of 30, ordered newest first. The actual video and thumbnail files live in the app's document directory; SQLite stores their file names.
-- **Zod validation:** I use one shared Zod schema for both creating and editing video details. It requires a name of up to 40 characters and allows an optional description of up to 200 characters. `react-hook-form` shows validation errors in the form.
-- **Edit and delete:** I added an edit details sheet on the video details screen. Changes to the name and description are written to SQLite and reflected in the list and details view. Deletion asks for confirmation, then removes the database record and its stored media files.
+- **SQLite persistence:** `expo-sqlite` stores clip metadata in `video-diary.db` across app restarts. Video and thumbnail files live in the app's document directory; SQLite stores their file names.
+- **Zod validation:** One shared Zod schema validates metadata during both creation and editing. It requires a name of up to 40 characters and allows an optional description of up to 200 characters. `react-hook-form` displays field errors.
+- **Edit and delete:** The details screen has an edit sheet for updating the name and description in SQLite. Deletion requires confirmation and removes the database record and stored media files.
 - **State and async work:** Zustand keeps the temporary crop flow state. TanStack Query handles list and detail reads, trimming and save mutations, and refreshes after changes.
 - **UI:** Expo Router handles navigation, NativeWind handles styling, and React Native Reanimated animates the crop and edit sheets.
 
 ### Scaling the SQLite video list
 
-I designed the list so it does not load every saved video as the diary grows. The repository fetches **30 videos at a time** using a cursor made from `created_at` and `id`; the next page continues after the last row already shown. A composite index on `(created_at DESC, id DESC)` supports that ordering, including when multiple videos have the same timestamp. The home screen renders pages with React Native `FlatList` and requests another page only near the end. It gets the total video count and total duration from a separate SQL aggregate query instead of loading every row just to calculate them. SQLite also runs in WAL mode, and the database schema has a versioned migration path for future changes.
+The repository fetches **30 videos at a time** using a cursor made from `created_at` and `id`; the next page continues after the last row already shown. A composite index on `(created_at DESC, id DESC)` supports that ordering, including when multiple videos have the same timestamp. The home screen renders pages with React Native `FlatList` and requests another page only near the end. It gets the total video count and total duration from a separate SQL aggregate query instead of loading every row just to calculate them. SQLite runs in WAL mode, and the database schema has a versioned migration path for future changes.
 
 ## Folder structure
 
-I deliberately organized the small app by technical responsibility rather than putting every screen, hook, database query, and component into separate feature folders. There are only three routes, while pieces such as `MetadataForm`, video playback, validation, and storage are shared across flows. Keeping shared code in `components/`, `hooks/`, `db/`, `lib/`, and `schemas/` gives each piece one clear location without duplicating it across feature folders. Screen-specific components are still grouped under `components/home/`, `components/crop/`, and `components/videos/`; if the app grows into more independent features, those groups can be moved into feature folders later.
+The app has only three routes, and pieces such as `MetadataForm`, playback, and validation are shared across flows, so code is grouped by technical responsibility. If the app grows into more independent areas, these groups can move into feature folders.
 
 ```text
 assets/                  App icons and bundled visual assets
-docs/screenshots/        Screenshots used in this README
+docs/                   Screenshots and demo video for this README
 src/
   app/                   Expo Router screens and root navigation layout
     index.tsx            Diary list and empty state
     crop/index.tsx       Three-step video cropping flow
     videos/[id].tsx      Saved clip details
-  components/            Reusable UI, crop, home, and video components
+  components/            Shared UI and screen-specific components
+    home/                Diary list and empty state components
+    crop/                Selection, timeline, and details steps
+    videos/              Video details, edit, and delete components
   constants.ts           Clip length, metadata limits, and layout constants
   db/                    SQLite provider, migrations, and video queries
   hooks/                 Video queries and crop-flow hooks
@@ -111,9 +120,20 @@ package.json             Dependencies and scripts
 
 ## Checks
 
+Automated tests are outside the scope of this case study. The next useful tests would cover Zod metadata validation and SQLite cursor pagination, including records with equal timestamps. The available static checks are:
+
 ```bash
 npm run lint
 npm run typecheck
 ```
+
+## Limitations and next steps
+
+- Clips have a fixed five-second length; custom durations are not supported.
+- Videos and metadata are stored only on the device, with no cloud sync or backup.
+- The Expo Go branch previews a five-second selection but saves the full source video.
+- Automated schema and repository tests have not been added yet.
+- iOS device testing is not documented in this repository; verify picking, cropping, playback, and deletion on an iOS development build before release.
+- Saved clips cannot currently be exported or shared from the app.
 
 For Expo SDK guidance, see the [SDK 57 reference](https://docs.expo.dev/versions/v57.0.0/) and [development build instructions](https://docs.expo.dev/develop/development-builds/use-development-builds/).
