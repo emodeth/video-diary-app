@@ -2,21 +2,27 @@ import * as ImagePicker from "expo-image-picker";
 import { Platform } from "react-native";
 import type { VideoSource } from "@/types/crop";
 
-export async function pickVideo(): Promise<VideoSource | null> {
+export type PickResult =
+  | { kind: "picked"; source: VideoSource }
+  | { kind: "cancelled" }
+  | { kind: "denied" }
+  | { kind: "tooShort" };
+
+export async function pickVideo(): Promise<PickResult> {
   // Android's system photo picker grants access to the chosen item itself.
   // iOS needs library permission to return the original video asset.
   if (Platform.OS === "ios") {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) throw new Error("permission");
+    if (!permission.granted) return { kind: "denied" };
   }
 
   const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["videos"] });
-  if (result.canceled || !result.assets[0]) return null;
+  if (result.canceled || !result.assets[0]) return { kind: "cancelled" };
   const asset = result.assets[0];
   const duration = (asset.duration ?? 0) / 1000;
-  if (duration < 5) throw new Error("tooShort");
+  if (duration < 5) return { kind: "tooShort" };
 
-  return {
+  return { kind: "picked", source: {
     id: asset.uri,
     duration,
     color: "#D5D1E9",
@@ -24,5 +30,5 @@ export async function pickVideo(): Promise<VideoSource | null> {
     fileSize: asset.fileSize,
     width: asset.width,
     height: asset.height,
-  };
+  } };
 }

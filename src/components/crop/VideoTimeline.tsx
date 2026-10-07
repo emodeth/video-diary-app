@@ -8,8 +8,8 @@ import { formatTime } from "@/lib/formatTime";
 import { getStartFromPosition } from "@/lib/getStartFromPosition";
 import { PreviewSkeleton } from "@/components/PreviewSkeleton";
 
-type Props = {
-  frames: VideoThumbnail[];
+type VideoTimelineProps = {
+  frames: (VideoThumbnail | null)[];
   framesLoading: boolean;
   duration: number;
   start: number;
@@ -32,7 +32,7 @@ export function VideoTimeline({
   onDragBegin,
   onDragEnd,
   onPause,
-}: Props) {
+}: VideoTimelineProps) {
   const [width, setWidth] = useState(0);
   const drag = useRef<{ initialStart: number; nextStart: number } | null>(null);
   const maxStart = Math.max(0, duration - clipLength);
@@ -114,10 +114,11 @@ export function VideoTimeline({
             onStartChange(Math.round((start + delta) * 10) / 10, true);
           }}
           onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
-          className="mt-[12px] h-[62px] flex-row overflow-hidden rounded-[12px] bg-[#E7E4EF]"
+          className="mt-[12px] h-[62px] flex-row overflow-hidden rounded-[12px] bg-track"
         >
-          {frames.length > 0
-            ? frames.map((frame, index) => (
+          {frames.some(Boolean) ? (
+            frames.map((frame, index) =>
+              frame ? (
                 <Image
                   key={index}
                   source={frame}
@@ -125,13 +126,28 @@ export function VideoTimeline({
                   pointerEvents="none"
                   style={{ width: `${100 / frames.length}%`, height: "100%" }}
                 />
-              ))
-            : <PreviewSkeleton width={width} shimmer={framesLoading}
-                label={framesLoading ? "Timeline frames loading" : "Timeline frames unavailable"} />}
+              ) : (
+                <View
+                  key={index}
+                  style={{ width: `${100 / frames.length}%`, height: "100%" }}
+                />
+              ),
+            )
+          ) : (
+            <PreviewSkeleton
+              width={width}
+              shimmer={framesLoading}
+              label={
+                framesLoading
+                  ? "Timeline frames loading"
+                  : "Timeline frames unavailable"
+              }
+            />
+          )}
           <View
             pointerEvents="none"
             style={{ width: frameWidth, left }}
-            className="absolute inset-y-0 items-center justify-center rounded-[10px] border-2 border-brand bg-[#AAB9ED]/35"
+            className="absolute inset-y-0 items-center justify-center rounded-[10px] border-2 border-brand bg-track-selection/35"
           >
             <View className="h-7 w-[3px] rounded-full bg-brand" />
             <View

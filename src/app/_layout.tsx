@@ -35,7 +35,7 @@ export default function RootLayout() {
                 <Stack.Screen name="videos/[id]" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="crop"
-                  options={{ presentation: "transparentModal", animation: "none", headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
+                  options={{ presentation: "transparentModal", animation: "none", gestureEnabled: false, headerShown: false, contentStyle: { backgroundColor: "transparent" } }}
                 />
               </Stack>
               <ToastViewport />

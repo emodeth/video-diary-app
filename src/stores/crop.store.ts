@@ -1,20 +1,12 @@
 import { create } from "zustand";
 import type { CropStep, VideoSource } from "@/types/crop";
-import { deleteThumbnailFile } from "@/lib/file-system";
+import { safeDeleteThumbnail } from "@/lib/fileSystem";
 
 type ThumbnailStatus = "idle" | "loading" | "ready" | "error";
 
-function discardThumbnail(fileName: string | null) {
-  if (!fileName) return;
-  try {
-    deleteThumbnailFile(fileName);
-  } catch {
-    // Keep the crop flow usable if cleanup fails.
-  }
-}
-
 type CropDraft = {
   sessionVersion: number;
+  sheetPresented: boolean;
   step: CropStep;
   selected: VideoSource | null;
   thumbnailFileName: string | null;
@@ -26,11 +18,13 @@ type CropDraft = {
 };
 
 type CropStore = CropDraft & {
+  markSheetPresented: () => void;
   nextStep: () => void;
   previousStep: () => void;
   selectSource: (source: VideoSource) => void;
   setThumbnail: (version: number, fileName: string) => boolean;
   setThumbnailError: (version: number) => void;
+  retryThumbnail: () => void;
   markThumbnailSaved: () => void;
   setStart: (start: number) => void;
   setName: (name: string) => void;
@@ -40,6 +34,7 @@ type CropStore = CropDraft & {
 
 const initialDraft: CropDraft = {
   sessionVersion: 0,
+  sheetPresented: false,
   step: 1,
   selected: null,
   thumbnailFileName: null,
@@ -52,11 +47,12 @@ const initialDraft: CropDraft = {
 
 export const useCropStore = create<CropStore>((set, get) => ({
   ...initialDraft,
-  nextStep: () => set(({ step }) => ({ step: Math.min(step + 1, 3) as CropStep })),
+  markSheetPresented: () => set({ sheetPresented: true }),
+  nextStep: () => set(({ step, selected }) => ({ step: selected ? Math.min(step + 1, 3) as CropStep : step })),
   previousStep: () => set(({ step }) => ({ step: Math.max(step - 1, 1) as CropStep })),
   selectSource: (selected) => {
     const state = get();
-    discardThumbnail(state.thumbnailFileName);
+    safeDeleteThumbnail(state.thumbnailFileName);
     set({ selected, start: 0, thumbnailFileName: null, thumbnailStatus: "loading", selectionVersion: state.selectionVersion + 1 });
   },
   setThumbnail: (version, fileName) => {
@@ -67,13 +63,19 @@ export const useCropStore = create<CropStore>((set, get) => ({
   setThumbnailError: (version) => {
     if (get().selectionVersion === version) set({ thumbnailStatus: "error" });
   },
+  retryThumbnail: () => {
+    const state = get();
+    if (state.selected && state.thumbnailStatus === "error") {
+      set({ thumbnailStatus: "loading", selectionVersion: state.selectionVersion + 1 });
+    }
+  },
   markThumbnailSaved: () => set({ thumbnailFileName: null, thumbnailStatus: "idle" }),
   setStart: (start) => set({ start }),
   setName: (name) => set({ name }),
   setDescription: (description) => set({ description }),
   reset: () => {
     const state = get();
-    discardThumbnail(state.thumbnailFileName);
+    safeDeleteThumbnail(state.thumbnailFileName);
     set({ ...initialDraft, sessionVersion: state.sessionVersion + 1, selectionVersion: state.selectionVersion + 1 });
   },
 }));
