@@ -27,7 +27,6 @@ export function useSheetAnimation(height: number, onDismiss: () => void) {
     if (dismissing.current) return;
     dismissing.current = true;
     // Reanimated shared values are intentionally mutable outside React render.
-    // eslint-disable-next-line react-hooks/immutability
     progress.value = withTiming(0, { duration: 220, easing: Easing.in(Easing.cubic) }, (finished) => {
       if (finished) scheduleOnRN(onDismiss);
     });

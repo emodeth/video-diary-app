@@ -11,12 +11,12 @@ export function EmptyVideos() {
       <View className="mb-6 h-[100px] w-[100px] items-center justify-center rounded-[30px] bg-brand-soft">
         <Film size={36} color={colors.brand.DEFAULT} strokeWidth={2.5} />
       </View>
-      <Text className="font-sans-semibold text-section-title text-ink">No clips yet</Text>
+      <Text className="font-sans-semibold text-section-title text-ink">No videos yet</Text>
       <Text className="mt-2 max-w-[290px] text-center font-sans text-lead text-muted">
-        Pick a video, trim a 5-second moment, and it will show up here.
+        Pick a video, preview a moment, and save the full video here.
       </Text>
       <View className="mt-6 w-full flex-row justify-center">
-        <Button label="Crop your first video" size="hero" onPress={() => {
+        <Button label="Add your first video" size="hero" onPress={() => {
           useCropStore.getState().reset();
           router.push("/crop");
         }} />

@@ -22,7 +22,7 @@ export function CropHeader({ onBack, onClose }: CropHeaderProps) {
           onPress={onBack}
         />
         <View className="items-center">
-          <Text className="font-sans-bold text-nav text-ink">New crop</Text>
+          <Text className="font-sans-bold text-nav text-ink">New video</Text>
           <Text className="mt-[2px] font-sans-medium text-meta text-muted">Step {step} of 3</Text>
         </View>
         <Button

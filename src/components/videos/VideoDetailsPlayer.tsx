@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/immutability -- Expo Video exposes imperative playback and seek controls. */
 import { useEventListener } from "expo";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { Platform, Text, View } from "react-native";
@@ -9,29 +8,31 @@ import colors from "@/theme/colors.json";
 type VideoDetailsPlayerProps = {
   uri: string;
   startSeconds: number;
+  durationSeconds: number;
   width: number;
   height: number;
 };
 
-function playbackStart(duration: number, selectedStart: number) {
-  // Android's expo-trim-video output retains source timestamps. iOS exports a new
-  // timeline beginning at zero. Clamp for older files with shorter media timelines.
-  return Platform.OS === "android" && duration > CLIP_LENGTH
+function playbackStart(duration: number, selectedStart: number, isLegacyClip: boolean) {
+  // Older Android clips can retain their source timestamps.
+  return isLegacyClip && Platform.OS === "android" && duration > CLIP_LENGTH
     ? Math.min(selectedStart, Math.max(0, duration - CLIP_LENGTH))
     : 0;
 }
 
-export function VideoDetailsPlayer({ uri, startSeconds, width, height }: VideoDetailsPlayerProps) {
+export function VideoDetailsPlayer({ uri, startSeconds, durationSeconds, width, height }: VideoDetailsPlayerProps) {
+  const isLegacyClip = startSeconds > 0 && durationSeconds <= CLIP_LENGTH;
   const player = useVideoPlayer(uri, (createdPlayer) => {
     createdPlayer.timeUpdateEventInterval = 0.1;
   });
 
   useEventListener(player, "sourceLoad", ({ duration }) => {
-    player.currentTime = playbackStart(duration, startSeconds);
+    if (isLegacyClip) player.currentTime = playbackStart(duration, startSeconds, true);
   });
 
   useEventListener(player, "timeUpdate", ({ currentTime }) => {
-    const clipStart = playbackStart(player.duration, startSeconds);
+    if (!isLegacyClip) return;
+    const clipStart = playbackStart(player.duration, startSeconds, true);
     if (currentTime < clipStart - 0.05) {
       player.currentTime = clipStart;
     } else if (currentTime >= clipStart + CLIP_LENGTH - 0.05) {
@@ -41,16 +42,18 @@ export function VideoDetailsPlayer({ uri, startSeconds, width, height }: VideoDe
   });
 
   useEventListener(player, "playingChange", ({ isPlaying }) => {
-    if (!isPlaying) return;
-    const clipStart = playbackStart(player.duration, startSeconds);
+    if (!isLegacyClip || !isPlaying) return;
+    const clipStart = playbackStart(player.duration, startSeconds, true);
     if (player.currentTime < clipStart || player.currentTime >= clipStart + CLIP_LENGTH - 0.05) {
       player.currentTime = clipStart;
     }
   });
 
   useEventListener(player, "playToEnd", () => {
-    player.pause();
-    player.currentTime = playbackStart(player.duration, startSeconds);
+    if (isLegacyClip) {
+      player.pause();
+      player.currentTime = playbackStart(player.duration, startSeconds, true);
+    }
   });
 
   return (
@@ -63,7 +66,7 @@ export function VideoDetailsPlayer({ uri, startSeconds, width, height }: VideoDe
       />
       <View pointerEvents="none" className="absolute right-3 top-3 rounded-md bg-black/70 px-2 py-1">
         <Text className="font-sans-semibold text-xs text-white tabular-nums">
-          {formatTime(CLIP_LENGTH)} clip
+          {formatTime(durationSeconds)} {isLegacyClip ? "clip" : "video"}
         </Text>
       </View>
     </View>

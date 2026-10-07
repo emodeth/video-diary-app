@@ -67,7 +67,7 @@ export function CropFooter({
                     ? "Preparing…"
                     : thumbnailStatus === "error"
                       ? "Retry thumbnail"
-                      : "Crop video"
+                      : "Save full video"
               }
               size="large"
               fullWidth

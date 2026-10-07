@@ -1,10 +1,8 @@
-/* eslint-disable react-hooks/immutability -- Expo Video exposes imperative playback and seek controls. */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEventListener } from "expo";
 import type { VideoPlayer } from "expo-video";
 
 const SEEK_INTERVAL_MS = 40;
-const DRAG_SEEK_TOLERANCE_SECONDS = 0.35;
 
 type ClipPreviewOptions = {
   player: VideoPlayer;
@@ -73,17 +71,7 @@ export function useClipPreview({ player, start, maxStart, clipLength, onStartCha
 
   function beginScrubbing() {
     player.pause();
-    player.seekTolerance = {
-      toleranceBefore: DRAG_SEEK_TOLERANCE_SECONDS,
-      toleranceAfter: DRAG_SEEK_TOLERANCE_SECONDS,
-    };
-    player.scrubbingModeOptions = { scrubbingModeEnabled: true };
     lastSeekAt.current = 0;
-  }
-
-  function endScrubbing() {
-    player.scrubbingModeOptions = { scrubbingModeEnabled: false };
-    player.seekTolerance = { toleranceBefore: 0, toleranceAfter: 0 };
   }
 
   const showTime = useCallback((time: number) => {
@@ -106,7 +94,6 @@ export function useClipPreview({ player, start, maxStart, clipLength, onStartCha
   }
 
   function endTimelineDrag(finalStart: number) {
-    endScrubbing();
     changeStart(finalStart, true);
     timelineDragging.current = false;
   }

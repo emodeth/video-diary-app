@@ -18,7 +18,7 @@ export function useSaveVideo({ onSaved, isDismissing }: { onSaved: () => void; i
 
   async function finish() {
     if (isDismissing()) return;
-    const { selected: source, start, name, description, thumbnailFileName, thumbnailStatus: currentThumbnailStatus } = useCropStore.getState();
+    const { selected: source, name, description, thumbnailFileName, thumbnailStatus: currentThumbnailStatus } = useCropStore.getState();
     const metadata = videoMetadataSchema.safeParse({ name, description });
     if (isBusy() || !source || !metadata.success) return;
     if (!thumbnailFileName || currentThumbnailStatus !== "ready") {
@@ -32,7 +32,7 @@ export function useSaveVideo({ onSaved, isDismissing }: { onSaved: () => void; i
       await createVideo({
         sourceUri: source.id,
         thumbnailFileName,
-        startSeconds: start,
+        durationSeconds: source.duration,
         title: metadata.data.name,
         description: metadata.data.description,
       });

@@ -19,7 +19,7 @@ export function VideoDetailsBody({ video, previewWidth, cardHeight }: VideoDetai
   return (
     <>
       {fileExists ? (
-        <VideoDetailsPlayer uri={file.uri} startSeconds={video.startSeconds} width={previewWidth} height={cardHeight} />
+        <VideoDetailsPlayer uri={file.uri} startSeconds={video.startSeconds} durationSeconds={video.durationSeconds} width={previewWidth} height={cardHeight} />
       ) : (
         <View style={{ width: previewWidth, height: cardHeight }} className="self-center items-center justify-center rounded-[12px] bg-brand-soft px-6">
           <Text className="text-center font-sans-semibold text-heading text-ink">Video file unavailable</Text>

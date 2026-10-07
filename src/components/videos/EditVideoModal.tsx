@@ -55,7 +55,6 @@ export function EditVideoModal({ video, onClose }: EditVideoModalProps) {
     if (closing.current) return;
     closing.current = true;
     // Reanimated shared values are intentionally mutable outside React render.
-    // eslint-disable-next-line react-hooks/immutability
     progress.value = withTiming(0, { duration: 220, easing: Easing.in(Easing.cubic) }, (finished) => {
       if (finished) scheduleOnRN(onClose);
     });
@@ -124,7 +123,7 @@ export function EditVideoModal({ video, onClose }: EditVideoModalProps) {
                 ? { uri: thumbnailFile(video.thumbnailFileName).uri }
                 : undefined}
               timeRange={`${formatTime(video.startSeconds)} – ${formatTime(video.startSeconds + video.durationSeconds)}`}
-              clipDescription={`Saved ${formatTime(video.durationSeconds)} clip`}
+              clipDescription={`Saved ${formatTime(video.durationSeconds)} video`}
               name={title}
               onChangeName={setTitle}
               description={description}

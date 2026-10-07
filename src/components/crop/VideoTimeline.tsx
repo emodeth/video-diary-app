@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/refs -- Gesture callbacks keep the active drag position outside React render. */
 import { useRef, useState } from "react";
 import { Image } from "expo-image";
 import type { VideoThumbnail } from "expo-video";

@@ -22,15 +22,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-status-bar",
       [
         "expo-image-picker",
         {
           "microphonePermission": false
         }
       ],
-      "expo-font",
-      "expo-image"
+      "expo-font"
     ],
     "extra": {
       "router": {},

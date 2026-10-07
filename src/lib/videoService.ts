@@ -1,24 +1,17 @@
 import type { SQLiteDatabase } from "expo-sqlite";
-import { trimVideo } from "expo-trim-video";
-import { CLIP_LENGTH } from "@/constants";
 import { saveVideo } from "@/db/videos.repository";
-import { deleteVideoFile, storeTrimmedVideo } from "@/lib/fileSystem";
+import { deleteVideoFile, storeVideo } from "@/lib/fileSystem";
 
 export type CreateVideoInput = {
   sourceUri: string;
   thumbnailFileName: string;
-  startSeconds: number;
+  durationSeconds: number;
   title: string;
   description: string;
 };
 
 export async function createVideo(db: SQLiteDatabase, input: CreateVideoInput) {
-  const { uri } = await trimVideo({
-    uri: input.sourceUri,
-    start: input.startSeconds,
-    end: input.startSeconds + CLIP_LENGTH,
-  });
-  const fileName = await storeTrimmedVideo(uri);
+  const fileName = await storeVideo(input.sourceUri);
 
   try {
     await saveVideo(db, {
@@ -26,8 +19,8 @@ export async function createVideo(db: SQLiteDatabase, input: CreateVideoInput) {
       description: input.description.trim(),
       fileName,
       thumbnailFileName: input.thumbnailFileName,
-      durationSeconds: CLIP_LENGTH,
-      startSeconds: input.startSeconds,
+      durationSeconds: input.durationSeconds,
+      startSeconds: 0,
     });
   } catch (error) {
     try {

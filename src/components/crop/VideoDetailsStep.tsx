@@ -35,8 +35,8 @@ export function VideoDetailsStep({ frames }: VideoDetailsStepProps) {
           ? { uri: thumbnailFile(thumbnailFileName).uri }
           : poster
       }
-      timeRange={`${formatTime(start)} – ${formatTime(start + 5)}`}
-      clipDescription={`5-second moment from a ${formatTime(selected.duration)} video`}
+      timeRange={`0:00 – ${formatTime(selected.duration)}`}
+      clipDescription={`Full video saved · previewed ${formatTime(start)} – ${formatTime(start + 5)}`}
       name={name}
       onChangeName={setName}
       description={description}

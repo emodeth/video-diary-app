@@ -1,5 +1,6 @@
 import * as Crypto from "expo-crypto";
 import { Directory, File, Paths } from "expo-file-system";
+import { copyAsync } from "expo-file-system/legacy";
 
 const videosDirectory = new Directory(Paths.document, "videos");
 const thumbnailsDirectory = new Directory(Paths.document, "thumbnails");
@@ -33,20 +34,19 @@ export async function storeThumbnail(uri: string) {
   }
 }
 
-export async function storeTrimmedVideo(uri: string) {
-  const trimmedFile = new File(uri);
-  const fileName = `${Crypto.randomUUID()}.mp4`;
+export async function storeVideo(uri: string) {
+  const sourceFile = new File(uri);
+  const fileName = `${Crypto.randomUUID()}${sourceFile.extension || ".mp4"}`;
   const savedFile = videoFile(fileName);
 
   try {
     videosDirectory.create({ idempotent: true });
-    await trimmedFile.move(savedFile);
-    if (!savedFile.exists) throw new Error("Trimmed video could not be saved.");
+    await copyAsync({ from: sourceFile.uri, to: savedFile.uri });
+    if (!savedFile.exists) throw new Error("Video could not be saved.");
     return fileName;
   } catch (error) {
     try {
       if (savedFile.exists) savedFile.delete();
-      else if (trimmedFile.exists) trimmedFile.delete();
     } catch {
       // Preserve the original storage error.
     }

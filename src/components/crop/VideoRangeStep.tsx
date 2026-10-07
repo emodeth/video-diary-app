@@ -47,10 +47,10 @@ export function VideoRangeStep({ player, frames, framesFailed }: VideoRangeStepP
   return (
     <>
       <Text className="font-sans-bold text-title tracking-[-0.7px] text-ink">
-        Choose 5 seconds
+        Preview 5 seconds
       </Text>
       <Text className="mt-[5px] font-sans text-lead text-muted">
-        Drag the frame along the timeline to choose where your clip starts.
+        Drag the frame to preview a moment. The full video will be saved.
       </Text>
       <View className="mt-3">
         <VideoPlayer player={player} width={previewWidth} height={cardHeight} />
