@@ -28,7 +28,7 @@ The screenshots below follow the app flow in order.
 
 ### Demo video
 
-[Watch the app demo (MP4)](docs/demo/video-diary-demo.mp4)
+[Watch the app demo on YouTube](https://www.youtube.com/watch?v=bDqzcZQdYxQ)
 
 ## Setup
 
@@ -96,7 +96,7 @@ The app has only three routes, and pieces such as `MetadataForm`, playback, and 
 
 ```text
 assets/                  App icons and bundled visual assets
-docs/                   Screenshots and demo video for this README
+docs/screenshots/        Screenshots used in this README
 src/
   app/                   Expo Router screens and root navigation layout
     index.tsx            Diary list and empty state
@@ -126,14 +126,5 @@ Automated tests are outside the scope of this case study. The next useful tests 
 npm run lint
 npm run typecheck
 ```
-
-## Limitations and next steps
-
-- Clips have a fixed five-second length; custom durations are not supported.
-- Videos and metadata are stored only on the device, with no cloud sync or backup.
-- The Expo Go branch previews a five-second selection but saves the full source video.
-- Automated schema and repository tests have not been added yet.
-- iOS device testing is not documented in this repository; verify picking, cropping, playback, and deletion on an iOS development build before release.
-- Saved clips cannot currently be exported or shared from the app.
 
 For Expo SDK guidance, see the [SDK 57 reference](https://docs.expo.dev/versions/v57.0.0/) and [development build instructions](https://docs.expo.dev/develop/development-builds/use-development-builds/).
