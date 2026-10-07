@@ -14,6 +14,7 @@ A mobile app for saving five-second moments from videos on your device. Pick a v
 | TanStack Query | Data fetching and mutations |
 | NativeWind | Styling |
 | Expo SQLite | Local video metadata storage |
+| expo-trim-video | Five-second video cropping |
 | Zod | Metadata validation |
 
 ## Screenshots
