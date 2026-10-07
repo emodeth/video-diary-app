@@ -24,7 +24,7 @@ function refreshVideoQueriesInBackground(queryClient: QueryClient) {
   void Promise.resolve().then(() => refreshVideoQueries(queryClient)).catch(reportRefreshFailure);
 }
 
-function removeStoredFiles(video: Video) {
+function removeStoredFiles(video: Pick<Video, "fileName" | "thumbnailFileName">) {
   try {
     deleteVideoFile(video.fileName);
   } catch (error) {
@@ -85,12 +85,12 @@ export function useDeleteVideo() {
   const [videoToDelete, setVideoToDelete] = useState<Video | null>(null);
   const { mutate: removeVideo, isPending: deleting } = useMutation({
     mutationFn: (video: Video) => deleteVideo(db, video.id),
-    onSuccess: (_result, video) => {
+    onSuccess: (deletedFiles) => {
       router.back();
       setVideoToDelete(null);
       showToast("Video deleted from your diary");
       refreshVideoQueriesInBackground(queryClient);
-      removeStoredFiles(video);
+      if (deletedFiles) removeStoredFiles(deletedFiles);
     },
     onError: () => {
       showToast("Couldn’t delete video. Please try again", "error");

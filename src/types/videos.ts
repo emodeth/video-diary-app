@@ -3,7 +3,7 @@ export type Video = {
   title: string;
   description: string;
   fileName: string;
-  thumbnailFileName: string | null;
+  thumbnailFileName: string;
   durationSeconds: number;
   startSeconds: number;
   createdAt: string;
